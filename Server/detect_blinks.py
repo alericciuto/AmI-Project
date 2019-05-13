@@ -79,7 +79,7 @@ def run(event, conn):
     time.sleep(1.0)
 
     # ADDED : timer activated last time
-    activatedTimer = None
+    activated_timer = None
 
     # loop over frames from the video stream
     while True:
@@ -150,15 +150,15 @@ def run(event, conn):
             timer = Timer(2.0, timeout, args=(event, conn, ))
             stop = Timer(1.0, restartTime, args=(event, conn, ))
             if ear < EYE_AR_THRESH:
-                if activatedTimer is None or (not activatedTimer.is_waiting() and not activatedTimer.is_started()):
+                if activated_timer is None or (not activated_timer.is_waiting() and not activated_timer.is_started()):
                     timer.start()
-                    activatedTimer = timer
-            elif activatedTimer is not None:
-                if activatedTimer.is_waiting():
-                    activatedTimer.cancel()
-                elif activatedTimer.is_started():
+                    activated_timer = timer
+            elif activated_timer is not None:
+                if activated_timer.is_waiting():
+                    activated_timer.cancel()
+                elif activated_timer.is_started():
                     stop.start()
-                activatedTimer = None
+                activated_timer = None
 
         # show the frame
         cv2.imshow("Frame", frame)

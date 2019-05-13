@@ -15,10 +15,14 @@ def detect():
         print("The driver is " + status)
         if status == "half-asleep":
             print("The server is going to wake up him!")
-            winsound.PlaySound('sveglia.wav', winsound.SND_ASYNC | winsound.SND_LOOP)
+            # Suond Stimolation :
+            # winsound.PlaySound('sveglia.wav', winsound.SND_ASYNC | winsound.SND_LOOP)
+            print("## Sound stimolation started ##")
             print("Waiting for stopping sound stimolation...")
         elif status == "awake":
-            winsound.PlaySound(None, winsound.SND_ASYNC)
+            # Stop sound stimolation :
+            # winsound.PlaySound(None, winsound.SND_ASYNC)
+            print("## Sound stimolation stopped ##")
 
 
 event = Condition()

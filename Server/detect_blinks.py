@@ -14,11 +14,6 @@ import time
 import cv2
 import dlib
 
-# ADDED : libs added for sound stimolation and timer
-import winsound
-# ADDED : lib for websockets
-import websockets
-import asyncio
 from timer_interact import Timer, timeout, restartTime
 
 
@@ -147,8 +142,8 @@ def run(event, conn):
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
             # ADDED : starting timer for sound stimolation if eyes close
-            timer = Timer(2.0, timeout, args=(event, conn, ))
-            stop = Timer(1.0, restartTime, args=(event, conn, ))
+            timer = Timer(2.0, timeout, args=(event, conn, ear))
+            stop = Timer(1.0, restartTime, args=(event, conn, ear))
             if ear < EYE_AR_THRESH:
                 if activated_timer is None or (not activated_timer.is_waiting() and not activated_timer.is_started()):
                     timer.start()

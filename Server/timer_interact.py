@@ -49,19 +49,19 @@ class Timer(Thread):
 
 
 # ADDED : handler for timer
-def timeout(event, conn):
+def timeout(event, conn, ear):
     # ADDED : handler function for timer to send data to the server -> sound stimolation
     # winsound.PlaySound('sveglia.wav', winsound.SND_ASYNC | winsound.SND_LOOP)
     event.acquire()
-    conn.set_status("half-asleep")
+    conn.set_eyelid(ear)
     event.notify()
     event.release()
 
 
-def restartTime(event, conn):
+def restartTime(event, conn, ear):
     # ADDED : handler function to warn server the driver has opened eyes
     event.acquire()
-    conn.set_status("awake")
+    conn.set_eyelid(ear)
     event.notify()
     event.release()
 

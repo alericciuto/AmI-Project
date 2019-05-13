@@ -2,7 +2,7 @@ import asyncio
 import websockets
 import winsound
 from threading import Thread, Condition
-import detect_blinks
+from detect_blinks import run
 from status import Status
 
 
@@ -10,24 +10,33 @@ def detect():
     while True:
         event.acquire()
         event.wait()
-        status = conn.get_status()
-        event.release()
-        print("The driver is " + status)
-        if status == "half-asleep":
+        if driver.is_asleep():
+            print("The driver is asleep,")
             print("The server is going to wake up him!")
             # Suond Stimolation :
             # winsound.PlaySound('sveglia.wav', winsound.SND_ASYNC | winsound.SND_LOOP)
             print("## Sound stimolation started ##")
-            print("Waiting for stopping sound stimolation...\n")
-        elif status == "awake":
+            print("## Vibration                 ##")
+            print("Waiting for stopping sound stimolation and vibration...\n")
+        elif driver.is_half_asleep():
             # Stop sound stimolation :
             # winsound.PlaySound(None, winsound.SND_ASYNC)
+            print("The driver is half-asleep,")
+            print("The server is going to warn him!")
+            # Suond Stimolation :
+            # winsound.PlaySound('sveglia.wav', winsound.SND_ASYNC | winsound.SND_LOOP)
+            print("## Sound stimolation started ##")
+            print("Waiting for stopping sound stimolation...\n")
+        elif driver.is_awake():
+            print("The driver is awake,")
+            print("The server is going to stop sound stimolation!")
             print("## Sound stimolation stopped ##\n")
+        event.release()
 
 
 event = Condition()
-conn = Status()
-thread1 = Thread(name='detect_blinks', target=detect_blinks.run, args=(event, conn, ))
+driver = Status()
+thread1 = Thread(name='detect_blinks', target=run, args=(event, driver,))
 thread1.start()
 detect()
 

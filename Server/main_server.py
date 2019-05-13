@@ -18,11 +18,11 @@ def detect():
             # Suond Stimolation :
             # winsound.PlaySound('sveglia.wav', winsound.SND_ASYNC | winsound.SND_LOOP)
             print("## Sound stimolation started ##")
-            print("Waiting for stopping sound stimolation...")
+            print("Waiting for stopping sound stimolation...\n")
         elif status == "awake":
             # Stop sound stimolation :
             # winsound.PlaySound(None, winsound.SND_ASYNC)
-            print("## Sound stimolation stopped ##")
+            print("## Sound stimolation stopped ##\n")
 
 
 event = Condition()

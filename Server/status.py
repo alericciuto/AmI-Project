@@ -6,9 +6,10 @@ MAX_EYELID = 0.40
 
 class Status:
     # finchè sensore non arriva -> valore di default
-    def __init__(self, eyelid=-1, pressure=40):
+    def __init__(self, eyelid=-1, pressure=30, previous_status=""):
         self.eyelid = eyelid
         self.pressure = pressure
+        self.previous_status = previous_status
 
     def set_eyelid(self, eyelid):
         self.eyelid = eyelid * 100 / MAX_EYELID
@@ -28,6 +29,7 @@ class Status:
 
     def is_awake(self):
         if self.eyelid > 70 or self.eyelid * 0.7 + self.pressure * 0.3 > 60:
+            self.previous_status = "awake"
             return True
         else:
             return False
@@ -40,6 +42,13 @@ class Status:
 
     def is_asleep(self):
         if self.eyelid < 50 or self.eyelid * 0.7 + self.pressure * 0.3 < 50 or self.pressure < 20:
+            self.previous_status = "asleep"
+            return True
+        else:
+            return False
+
+    def was_asleep(self):
+        if self.previous_status == "asleep":
             return True
         else:
             return False

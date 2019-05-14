@@ -22,11 +22,15 @@ def detect():
             # Stop sound stimolation :
             # winsound.PlaySound(None, winsound.SND_ASYNC)
             print("The driver is half-asleep,")
-            print("The server is going to warn him!")
+            if driver.was_asleep():
+                print("but he is going to restore his attention")
+                print("## Sound stimolation stopped ##\n")
+            else:
+                print("The server is going to warn him!")
+                print("## Sound stimolation started ##")
+                print("Waiting for stopping sound stimolation...\n")
             # Suond Stimolation :
             # winsound.PlaySound('sveglia.wav', winsound.SND_ASYNC | winsound.SND_LOOP)
-            print("## Sound stimolation started ##")
-            print("Waiting for stopping sound stimolation...\n")
         elif driver.is_awake():
             print("The driver is awake,")
             print("The server is going to stop sound stimolation!")

@@ -14,7 +14,7 @@ import time
 import cv2
 import dlib
 
-from timer_interact import Timer, timeout, restartTime
+from Server.timer_interact import Timer, timeout, restartTime
 
 
 def eye_aspect_ratio(eye):

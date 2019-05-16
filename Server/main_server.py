@@ -1,13 +1,15 @@
 import asyncio
-import websockets
 import winsound
 from threading import Thread, Condition
-from detect_blinks import run
-from status import Status
+from Server.detect_blinks import run
+from Server.status import Status
+from Server.detect_pressure import arduino_function
 
 
-def detect():
+def detect(driver):
     while True:
+        print("Pressure value: " + str(driver.get_pressure()))
+        print("Eyelid value: " + str(driver.get_eyelid()))
         event.acquire()
         event.wait()
         if driver.is_asleep():
@@ -42,7 +44,6 @@ event = Condition()
 driver = Status()
 thread1 = Thread(name='detect_blinks', target=run, args=(event, driver,))
 thread1.start()
-detect()
-
-
-
+thread2 = Thread(name="detect_pressure", target=arduino_function, args=(driver,))
+thread2.start()
+detect(driver)

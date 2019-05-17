@@ -1,4 +1,4 @@
-import Server.status
+import status
 import serial
 
 

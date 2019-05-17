@@ -1,9 +1,9 @@
 import asyncio
 import winsound
 from threading import Thread, Condition
-from Server.detect_blinks import run
-from Server.status import Status
-from Server.detect_pressure import arduino_function
+from detect_blinks import run
+from status import Status
+from detect_pressure import arduino_function
 
 
 def detect(driver):

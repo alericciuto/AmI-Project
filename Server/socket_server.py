@@ -16,9 +16,10 @@ class SocketServer:
       """
 
     client = None
+    client_addr = None
 
     def __init__(self):
-        #self.host = socket.gethostbyname(socket.gethostname())
+        # self.host = socket.gethostbyname(socket.gethostname())
         self.host = '192.168.43.58'
         self.port = 5000
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -73,11 +74,11 @@ def _recv(socket):
     # read the length of the data, letter by letter until we reach EOL
     length_str = ''
     char = socket.recv(1).decode('utf-8')
-    #print(length_str + " " + char)
+    # print(length_str + " " + char)
     while char != '\n':
         length_str += char
         char = socket.recv(1).decode('utf-8')
-        #print(length_str + " " + char)
+        # print(length_str + " " + char)
     total = int(length_str)
     # use a memoryview to receive the data chunk by chunk efficiently
     view = memoryview(bytearray(total))
@@ -90,16 +91,3 @@ def _recv(socket):
     except (TypeError, ValueError) as e:
         raise Exception('Data received was not in JSON format '.format(e))
     return deserialized
-
-
-if __name__ == '__main__':
-    socket = SocketServer()
-    socket.accept()
-
-    print("I'm here")
-    socket.send({'test': 'ciao'})
-    data = socket.recv()
-    print(data)
-    print("fatto")
-
-    socket.close()

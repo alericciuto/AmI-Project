@@ -88,7 +88,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        networktask.SendDataToNetwork("start_server", "false");
         networktask.cancel(true); //In case the task is currently running
+        super.onDestroy();
     }
 }

@@ -46,7 +46,7 @@ def run(event, conn):
     # define two constants, one for the eye aspect ratio to indicate
     # blink and then a second constant for the number of consecutive
     # frames the eye must be below the threshold
-    EYE_AR_THRESH = 0.26
+    EYE_AR_THRESH = 0.28
     EYE_AR_CONSEC_FRAMES = 2
 
     # initialize the frame counters and the total number of blinks
@@ -71,7 +71,7 @@ def run(event, conn):
     vs = VideoStream(src=0).start()
     # vs = VideoStream(usePiCamera=True).start()
     fileStream = False
-    #time.sleep(1.0)
+    # time.sleep(1.0)
 
     # ADDED : timer activated last time
     activated_timer = None

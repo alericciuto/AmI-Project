@@ -1,13 +1,13 @@
 # verify the max pressure
 MAX_PRESSURE = 2000
 # eyelid depends on the user
-MAX_EYELID = 0.35
+MAX_EYELID = 0.33
 MIN_EYELID = 0.15
 
 
 class Status:
     # finchè sensore non arriva -> valore di default
-    def __init__(self, eyelid=-1, pressure=MAX_PRESSURE, previous_status="", flag_pressure_busy=False):
+    def __init__(self, eyelid=-1, pressure=MAX_PRESSURE, previous_status="awake", flag_pressure_busy=False):
         self.eyelid = eyelid
         self.pressure = pressure
         self.previous_status = previous_status
@@ -32,8 +32,7 @@ class Status:
     def is_awake(self):
         while self.flag_pressure_busy:
             continue
-        if ((self.eyelid - MIN_EYELID) / (MAX_EYELID - MIN_EYELID)) * 85 + (self.pressure / MAX_PRESSURE) * 15 > 60:
-            self.previous_status = "awake"
+        if ((self.eyelid - MIN_EYELID) / (MAX_EYELID - MIN_EYELID)) * 80 + (self.pressure / MAX_PRESSURE) * 20 > 60:
             return True
         else:
             return False
@@ -52,7 +51,6 @@ class Status:
             continue
         if ((self.eyelid - MIN_EYELID) / (MAX_EYELID - MIN_EYELID)) * 80 + (self.pressure / MAX_PRESSURE) * 20 < 50 or \
                 (self.pressure / MAX_PRESSURE) * 100 < 20:
-            self.previous_status = "asleep"
             return True
         else:
             return False
@@ -62,6 +60,15 @@ class Status:
             return True
         else:
             return False
+
+    def was_awake(self):
+        if self.previous_status == "awake":
+            return True
+        else:
+            return False
+
+    def set_previous_status(self, status):
+        self.previous_status = status
 
     def flag_busy(self):
         self.flag_pressure_busy = True

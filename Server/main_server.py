@@ -1,49 +1,64 @@
-import asyncio
-import winsound
 from threading import Thread, Condition
 from detect_blinks import run
 from status import Status
 from detect_pressure import arduino_function
+from socket_server import SocketServer
 
 
-def detect(driver):
+def detect():
+    socket.accept()
+    data = socket.recv()
+    while data["start_server"] != "true":
+        data = socket.recv()
+    thread1.start()
+    # Levare il commento quando sta attaccato Arduino
+    # thread2.start()
     while True:
-        print("Pressure value: " + str(driver.get_pressure()))
-        print("Eyelid value: " + str(driver.get_eyelid()))
         event.acquire()
         event.wait()
+        # print("Pressure value: " + str(driver.get_pressure()))
+        # print("Eyelid value: " + str(driver.get_eyelid()))
         if driver.is_asleep():
             print("The driver is asleep,")
             print("The server is going to wake up him!")
             # Suond Stimolation :
             # winsound.PlaySound('sveglia.wav', winsound.SND_ASYNC | winsound.SND_LOOP)
+            socket.send({"sound": "on"})
             print("## Sound stimolation started ##")
             print("## Vibration                 ##")
             print("Waiting for stopping sound stimolation and vibration...\n")
         elif driver.is_half_asleep():
             # Stop sound stimolation :
-            # winsound.PlaySound(None, winsound.SND_ASYNC)
             print("The driver is half-asleep,")
             if driver.was_asleep():
                 print("but he is going to restore his attention")
+                socket.send({"sound": "off"})
                 print("## Sound stimolation stopped ##\n")
+                # winsound.PlaySound(None, winsound.SND_ASYNC)
             else:
                 print("The server is going to warn him!")
+                socket.send({"sound": "on"})
                 print("## Sound stimolation started ##")
                 print("Waiting for stopping sound stimolation...\n")
+                # winsound.PlaySound('sveglia.wav', winsound.SND_ASYNC | winsound.SND_LOOP)
             # Suond Stimolation :
             # winsound.PlaySound('sveglia.wav', winsound.SND_ASYNC | winsound.SND_LOOP)
         elif driver.is_awake():
             print("The driver is awake,")
             print("The server is going to stop sound stimolation!")
+            socket.send({"sound": "off"})
             print("## Sound stimolation stopped ##\n")
+            # winsound.PlaySound(None, winsound.SND_ASYNC)
         event.release()
+    # thread2.join()
 
 
 event = Condition()
 driver = Status()
 thread1 = Thread(name='detect_blinks', target=run, args=(event, driver,))
-thread1.start()
 thread2 = Thread(name="detect_pressure", target=arduino_function, args=(driver,))
-thread2.start()
-detect(driver)
+socket = SocketServer()
+detect()
+thread1.join()
+# thread2.join()
+socket.close()

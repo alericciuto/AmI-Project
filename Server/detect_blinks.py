@@ -71,7 +71,7 @@ def run(event, conn):
     vs = VideoStream(src=0).start()
     # vs = VideoStream(usePiCamera=True).start()
     fileStream = False
-    time.sleep(1.0)
+    #time.sleep(1.0)
 
     # ADDED : timer activated last time
     activated_timer = None

@@ -1,6 +1,7 @@
 package com.example.kmapp;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -21,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
     private Button new_account;
     private ImageButton delete_account;
     private NetworkTask networktask;
+    private MediaPlayer mp;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +44,8 @@ public class MainActivity extends AppCompatActivity {
         MainAdapter adapter = new MainAdapter(MainActivity.this, vector, image);
         gridView.setAdapter(adapter);
 
-        networktask = new NetworkTask(); //New instance of NetworkTask
+        mp = MediaPlayer.create(this, R.raw.alarm_sleeping);
+        networktask = new NetworkTask(mp); //New instance of NetworkTask
         networktask.execute();
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -49,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //da sostituire con collegamento a nuova pagina utente
                 Toast.makeText(getApplicationContext(),"Switch to "+vector[position],Toast.LENGTH_SHORT).show();
-                networktask.SendDataToNetwork("\nHello, I'm working!\n");
+                networktask.SendDataToNetwork("start_server", "true");
             }
         });
 

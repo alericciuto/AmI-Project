@@ -2,10 +2,11 @@
 MAX_PRESSURE = 2000
 # eyelid depends on the user
 MAX_EYELID = 0.35
-MIN_EYELID = 0.13
+MIN_EYELID = 0.15
 
 
 class Status:
+    # finchè sensore non arriva -> valore di default
     def __init__(self, eyelid=-1, pressure=MAX_PRESSURE, previous_status="", flag_pressure_busy=False):
         self.eyelid = eyelid
         self.pressure = pressure

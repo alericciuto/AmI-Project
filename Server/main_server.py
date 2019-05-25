@@ -13,7 +13,6 @@ def detect():
         # print("Eyelid value: " + str(driver.get_eyelid()))
         if not driver.is_connected():
             eyes_thread.join()
-            print(eyes_thread.name + " stopped")
             return
         if driver.is_asleep() and driver.was_awake():
             driver.set_previous_status("asleep")

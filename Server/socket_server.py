@@ -23,30 +23,29 @@ class SocketServer:
         self.host = '192.168.43.58'
         self.port = 5000
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print('Socket created')
         try:
             self.socket.bind((self.host, self.port))
-            self.socket.listen(2)
+            self.socket.listen(1)
+            print('>> Socket created')
         except socket.error as err:
-            print('Bind failed. Error Code : '.format(err))
+            print('>> Bind failed. Error Code : '.format(err))
 
     def accept(self):
         # if a client is already connected, disconnect it
         if self.client:
             self.client.close()
         self.client, self.client_addr = self.socket.accept()
-        print("Socket waiting for a client...")
         return self
 
     def send(self, data):
         if not self.client:
-            raise Exception('Cannot send data, no client is connected')
+            raise Exception('>> Cannot send data, no client is connected')
         _send(self.client, data)
         return self
 
     def recv(self):
         if not self.client:
-            raise Exception('Cannot receive data, no client is connected')
+            raise Exception('>> Cannot receive data, no client is connected')
         return _recv(self.client)
 
     def close(self):
@@ -62,7 +61,7 @@ def _send(socket, data):
     try:
         serialized = json.dumps(data).encode('utf-8')
     except (TypeError, ValueError) as e:
-        raise Exception('You can only send JSON-serializable data '.format(e))
+        raise Exception('>> You can only send JSON-serializable data '.format(e))
     # send the length of the serialized data first
     socket.send(('%d\n' % len(serialized)).encode('utf-8'))
     # print(('%d\n' % len(serialized)).encode('utf-8'))
@@ -89,5 +88,6 @@ def _recv(socket):
     try:
         deserialized = json.loads(view.tobytes())
     except (TypeError, ValueError) as e:
-        raise Exception('Data received was not in JSON format '.format(e))
+        raise Exception('>> Data received was not in JSON format '.format(e))
     return deserialized
+

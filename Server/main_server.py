@@ -2,61 +2,59 @@ from threading import Thread, Condition
 from detect_blinks import run
 from status import Status
 from detect_pressure import arduino_function
-from socket_server import SocketServer
 
 
 def detect():
-    socket.accept()
-    data = socket.recv()
-    while data["start_server"] != "true":
-        data = socket.recv()
-    thread1.start()
-    # Levare il commento quando sta attaccato Arduino
-    # thread2.start()
+    eyes_thread.start()
     while True:
-        event.acquire()
-        event.wait()
+        main_event.acquire()
+        main_event.wait()
         # print("Pressure value: " + str(driver.get_pressure()))
         # print("Eyelid value: " + str(driver.get_eyelid()))
+        if not driver.is_connected():
+            eyes_thread.join()
+            print(eyes_thread.name + " stopped")
+            return
         if driver.is_asleep() and driver.was_awake():
             driver.set_previous_status("asleep")
-            print("The driver is asleep,")
+            print("\nThe driver is asleep,")
             print("The server is going to wake up him!")
-            socket.send({"sound": "on"})
+            driver.sound_on()
             print("## Sound stimolation started ##")
             print("## Vibration                 ##")
-            print("Waiting for stopping sound stimolation and vibration...\n")
+            print("Waiting for stopping sound stimolation and vibration...")
         elif driver.is_half_asleep():
-            print("The driver is half-asleep,")
+            print("\nThe driver is half-asleep,")
             if driver.was_asleep():
                 driver.set_previous_status("awake")
                 print("but he is going to restore his attention")
-                socket.send({"sound": "off"})
-                print("## Sound stimolation stopped ##\n")
+                driver.sound_off()
+                print("## Sound stimolation stopped ##")
             else:
                 driver.set_previous_status("asleep")
                 print("The server is going to warn him!")
-                socket.send({"sound": "on"})
+                driver.sound_on()
                 print("## Sound stimolation started ##")
-                print("Waiting for stopping sound stimolation...\n")
+                print("Waiting for stopping sound stimolation...")
         elif driver.is_awake() and driver.was_asleep():
             driver.set_previous_status("awake")
-            print("The driver is awake,")
+            print("\nThe driver is awake,")
             print("The server is going to stop sound stimolation!")
-            socket.send({"sound": "off"})
-            print("## Sound stimolation stopped ##\n")
-        event.release()
+            driver.sound_off()
+            print("## Sound stimolation stopped ##")
+        main_event.release()
 
 
-event = Condition()
 driver = Status()
-thread1 = Thread(name='detect_blinks', target=run, args=(event, driver,))
-thread2 = Thread(name="detect_pressure", target=arduino_function, args=(driver,))
-socket = SocketServer()
-detect()
+driver.start_listener()
+main_event = Condition()
 
+while True:
+    pressure_thread = Thread(name="detect_pressure", target=arduino_function, args=(driver,))
+    eyes_thread = Thread(name="detect_blinks", target=run, args=(main_event, driver, pressure_thread, ))
+    detect_thread = Thread(name="main", target=detect)
 
+    driver.wait_for_connection()
 
-
-
-
+    detect_thread.start()
+    detect_thread.join()

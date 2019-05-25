@@ -49,16 +49,16 @@ class Timer(Thread):
 
 
 # ADDED : handler for timer
-def timeout(event, conn, ear):
+def timeout(event, driver, ear):
     event.acquire()
-    conn.set_eyelid(ear)
+    driver.set_eyelid(ear)
     event.notify()
     event.release()
 
 
-def restartTime(event, conn, ear):
+def restart_time(event, driver, ear):
     event.acquire()
-    conn.set_eyelid(ear)
+    driver.set_eyelid(ear)
     event.notify()
     event.release()
 

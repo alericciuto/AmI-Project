@@ -14,7 +14,7 @@ import time
 import cv2
 import dlib
 
-from timer_interact import Timer, timeout, restartTime
+from timer_interact import Timer, timeout, restart_time
 
 
 def eye_aspect_ratio(eye):
@@ -34,7 +34,10 @@ def eye_aspect_ratio(eye):
     return ear
 
 
-def run(event, conn):
+def run(main_event, driver, pressure_thread):
+
+    pressure_thread.start()
+
     # construct the argument parse and parse the arguments
     ap = argparse.ArgumentParser()
     ap.add_argument("-p", "--shape-predictor", required=True,
@@ -68,9 +71,12 @@ def run(event, conn):
     print("[INFO] starting video stream thread...")
     # vs = FileVideoStream(args["video"]).start()
     # fileStream = True
-    vs = VideoStream(src=0).start()
+
+    camera = VideoStream(src=0).start()
+    # vs = cv2.VideoCapture(0)
+    # vs = vc.start()
     # vs = VideoStream(usePiCamera=True).start()
-    fileStream = False
+    # fileStream = False
     # time.sleep(1.0)
 
     # ADDED : timer activated last time
@@ -78,16 +84,23 @@ def run(event, conn):
 
     # loop over frames from the video stream
     while True:
+        if not driver.is_connected():
+            pressure_thread.join()
+            main_event.acquire()
+            main_event.notify()
+            main_event.release()
+            break
         # if this is a file video stream, then we need to check if
         # there any more frames left in the buffer to process
-        if fileStream and not vs.more():
-            break
+        # if fileStream and not vs.more():
+        #    break
 
         # grab the frame from the threaded video file stream, resize
         # it, and convert it to grayscale
         # channels)
-        frame = vs.read()
-        frame = imutils.resize(frame, width=450)
+        frame = camera.read()
+        # frame = cv2.flip(frame, 1)
+        # frame = imutils.resize(frame, width=450)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         # detect faces in the grayscale frame
@@ -142,8 +155,8 @@ def run(event, conn):
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 
             # ADDED : starting timer for sound stimolation if eyes close
-            timer = Timer(2.0, timeout, args=(event, conn, ear))
-            stop = Timer(1.0, restartTime, args=(event, conn, ear))
+            timer = Timer(2.0, timeout, args=(main_event, driver, ear))
+            stop = Timer(1.0, restart_time, args=(main_event, driver, ear))
             if ear < EYE_AR_THRESH:
                 if activated_timer is None or (not activated_timer.is_waiting() and not activated_timer.is_started()):
                     timer.start()
@@ -157,12 +170,12 @@ def run(event, conn):
 
         # show the frame
         cv2.imshow("Frame", frame)
-        key = cv2.waitKey(1) & 0xFF
+        cv2.waitKey(1) & 0xFF
 
         # if the `q` key was pressed, break from the loop
-        if key == ord("q"):
-            break
+        # if key == ord("q"):
+        #    break
 
     # do a bit of cleanup
     cv2.destroyAllWindows()
-    vs.stop()
+    camera.stop()

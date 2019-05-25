@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 
@@ -16,6 +17,7 @@ public class New_Account extends AppCompatActivity {
     private String name;
     private Button confirm_button;
     private ImageButton back_button;
+    private LinearLayout linearMain;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +26,9 @@ public class New_Account extends AppCompatActivity {
         editName = findViewById(R.id.input_name);
         confirm_button = findViewById(R.id.confirm_button);
         back_button = findViewById(R.id.back_button);
+        linearMain = findViewById(R.id.list);
+
+        //ArrayList<String> categories = new ArrayList<String>();
 
         confirm_button.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -39,6 +44,8 @@ public class New_Account extends AppCompatActivity {
                     databaseAccess.insertRecord(name);
                     databaseAccess.close();
                     Toast.makeText(getApplicationContext(),"New Account saved",Toast.LENGTH_SHORT).show();
+
+                    openMainPage();
                 }
             }
         });

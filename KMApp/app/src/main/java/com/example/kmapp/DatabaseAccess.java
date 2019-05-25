@@ -44,7 +44,7 @@ public class DatabaseAccess {
     //return the database
     public List<String> getQuery(){
         ArrayList<String> list = new ArrayList<>();
-        c=db.rawQuery("select Nome from TabellaProva", new String[]{});
+        c=db.rawQuery("select Name from UserTable", new String[]{});
         while(c.moveToNext()){
             String name = c.getString(0);
             list.add(name);
@@ -54,7 +54,7 @@ public class DatabaseAccess {
 
     public Map<Integer, String> getQueryMap(){
         Map<Integer, String> map = new HashMap<>();
-        c=db.rawQuery("select * from TabellaProva", new String[]{});
+        c=db.rawQuery("select * from UserTable", new String[]{});
         while(c.moveToNext()){
             Integer id = c.getInt( 0 );
             String name = c.getString( 1 );
@@ -64,7 +64,7 @@ public class DatabaseAccess {
     }
 
     public void insertRecord(String name){
-        db.execSQL( "insert into TabellaProva (Nome) values ('"+ name +"')" );
+        db.execSQL( "insert into UserTable (Name) values ('"+ name +"')" );
     }
 
     public void deleteRecord(String name){
@@ -74,7 +74,7 @@ public class DatabaseAccess {
                 id = entry.getKey();
             }
         }
-        db.delete( "TabellaProva", "Id = ?",  new String[]{id.toString()});
+        db.delete( "UserTable", "Id = ?",  new String[]{id.toString()});
     }
 
 }

@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
                 //da sostituire con collegamento a nuova pagina utente
                 Toast.makeText(getApplicationContext(),"Switch to "+vector[position],Toast.LENGTH_SHORT).show();
                 networktask.SendDataToNetwork("start_server", "true");
+                openAccountPage();
             }
         });
 
@@ -71,6 +72,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void openAccountPage() {
+        Intent intent = new Intent(this, Account.class);
+        startActivity(intent);
+        this.finish();
     }
 
 

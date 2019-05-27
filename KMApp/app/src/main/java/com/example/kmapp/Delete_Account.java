@@ -53,8 +53,8 @@ public class Delete_Account extends AppCompatActivity {
     }
 
     private void openMainPage(){
-        Intent refresh = new Intent(this, MainActivity.class);
-        startActivity(refresh);
+        //Intent refresh = new Intent(this, MainActivity.class);
+        //startActivity(refresh);
         this.finish();
     }
 }

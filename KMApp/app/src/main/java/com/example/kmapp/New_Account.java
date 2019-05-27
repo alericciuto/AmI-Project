@@ -90,7 +90,7 @@ public class New_Account extends AppCompatActivity {
                     databaseAccess.close();
                     Toast.makeText(getApplicationContext(),"New Account saved",Toast.LENGTH_SHORT).show();
 
-                    openMainPage();
+                    New_Account.super.onBackPressed();
                 }
             }
         });
@@ -98,7 +98,7 @@ public class New_Account extends AppCompatActivity {
         back_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                openMainPage();
+                New_Account.super.onBackPressed();
             }
         });
     }
@@ -131,12 +131,6 @@ public class New_Account extends AppCompatActivity {
         });
 
 
-    }
-
-    private void openMainPage(){
-        Intent refresh = new Intent(this, MainActivity.class);
-        startActivity(refresh);
-        this.finish();
     }
 
 

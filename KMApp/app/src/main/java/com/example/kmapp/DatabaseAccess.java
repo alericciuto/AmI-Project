@@ -80,7 +80,7 @@ public class DatabaseAccess {
 
     public StringBuffer getUser(int id){
         StringBuffer result = new StringBuffer();
-        c=db.rawQuery("select * from UserTable where Id = ?", new String[]{"id"});
+        c=db.rawQuery("select * from UserTable where Id = ?", new String[]{Integer.toString( id )});
         while(c.moveToNext()){
             String name = c.getString( 1 );
             String text = c.getString( 2 );

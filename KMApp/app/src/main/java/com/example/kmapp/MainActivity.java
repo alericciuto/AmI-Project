@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 //da sostituire con collegamento a nuova pagina utente
                 Toast.makeText(getApplicationContext(),"Switch to "+vector[position],Toast.LENGTH_SHORT).show();
                 networktask.SendDataToNetwork("start_server", "true");
-                openAccountPage(position);
+                openAccountPage(position+1);
             }
         });
 
@@ -79,20 +79,17 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, Account.class);
         intent.putExtra( EXTRA_NUMBER, pos );
         startActivity(intent);
-        this.finish();
     }
 
 
     private void openNewAccountPage() {
         Intent intent = new Intent(this, New_Account.class);
         startActivity(intent);
-        this.finish();
     }
 
     private void openDeleteAccountPage() {
         Intent intent = new Intent(this, Delete_Account.class);
         startActivity(intent);
-        this.finish();
     }
 
     @Override
@@ -110,6 +107,25 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
+        DatabaseAccess databaseAccess=DatabaseAccess.getInstance(getApplicationContext());
+        databaseAccess.open();
+        final List<String> buffer=databaseAccess.getQuery();
+        databaseAccess.close();
+
+        final String[] vector= buffer.toArray(new String[0]);
+
+        MainAdapter adapter = new MainAdapter(MainActivity.this, vector, image);
+        gridView.setAdapter(adapter);
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //da sostituire con collegamento a nuova pagina utente
+                Toast.makeText(getApplicationContext(),"Switch to "+vector[position],Toast.LENGTH_SHORT).show();
+                networktask.SendDataToNetwork("start_server", "true");
+                openAccountPage(position+1);
+            }
+        });
     }
 
     @Override

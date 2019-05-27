@@ -50,10 +50,30 @@ public class New_Account extends AppCompatActivity {
         back_button = findViewById(R.id.back_button);
 
         database = FirebaseDatabase.getInstance();
-        mListView = findViewById( R.id.listView );
+        mListView = (ListView) findViewById( R.id.listView );
 
         readCategories();
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Object obj = parent.getAdapter().getItem(position);
+                CheckBox objCheckbox = (CheckBox) view.findViewById(R.id.checkBox);
+                Categories cat = categories.get( position );
+                if(cat.isChecked()) {
+                    cat.setChecked(false);
+                    preferences.toString().replace(Integer.toString(position)+" ", "");
+                    objCheckbox.setChecked(false);
+                }
+                else{
+                    cat.setChecked( true );
+                    preferences.append( Integer.toString(position) + " " );
+                    objCheckbox.setChecked(true);
+                }
+
+                categories.set( position, cat );
+            }
+        });
         confirm_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -63,19 +83,7 @@ public class New_Account extends AppCompatActivity {
                     return;
                 }
                 else{
-                    mListView.setOnItemClickListener( new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            Categories cat = categories.get( position );
-                            if(cat.isChecked())
-                                cat.setChecked( false );
-                            else
-                                cat.setChecked( true );
 
-                            categories.set( position, cat );
-                            preferences.append( position + " " );
-                        }
-                    } );
                     DatabaseAccess databaseAccess=DatabaseAccess.getInstance(getApplicationContext());
                     databaseAccess.open();
                     databaseAccess.insertRecord(name, preferences);
@@ -112,12 +120,17 @@ public class New_Account extends AppCompatActivity {
                 }
 
                 adapter = new ArrayAdapter<String>( getApplicationContext(), R.layout.row, R.id.checkBox, array);
+
                 mListView.setAdapter( adapter );
+
+
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
+
+
     }
 
     private void openMainPage(){

@@ -23,4 +23,13 @@
         app:layout_constraintVertical_bias="0.015"
         app:srcCompat="@android:drawable/ic_menu_revert" />
 
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="313dp"
+        android:layout_height="330dp"
+        android:text="TextView"
+        tools:layout_editor_absoluteX="40dp"
+        tools:layout_editor_absoluteY="161dp"
+        tools:ignore="MissingConstraints" />
+
 </android.support.constraint.ConstraintLayout>

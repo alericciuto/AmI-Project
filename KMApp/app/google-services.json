@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "770006476709",
+    "firebase_url": "https://lifesaver-protocol-494e2.firebaseio.com",
+    "project_id": "lifesaver-protocol-494e2",
+    "storage_bucket": "lifesaver-protocol-494e2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:770006476709:android:ec85df088db832c2",
+        "android_client_info": {
+          "package_name": "com.example.kmapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "770006476709-p8ploce1q9rqjj9mjs57hqrv045ao72t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.kmapp",
+            "certificate_hash": "c35bded2c2c7224dcf1012216ec62d11ddcfcca5"
+          }
+        },
+        {
+          "client_id": "770006476709-nv6plliakesa4eln0tic939qgu8gkqgq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.kmapp",
+            "certificate_hash": "9d568a266a5b2904674e602f20ad0446975d803f"
+          }
+        },
+        {
+          "client_id": "770006476709-e30iq6bo2359g2c9iad41tk0amlnp680.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDoXthmMZNN6rxTLoVpRqgBL5b5CBRFq8M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "770006476709-e30iq6bo2359g2c9iad41tk0amlnp680.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

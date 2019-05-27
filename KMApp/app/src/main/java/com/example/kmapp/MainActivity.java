@@ -15,6 +15,7 @@ import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
+    public static final String EXTRA_NUMBER = "com.example.application.example.EXTRA_NUMBER";
 
     //public TextView result;
     private GridView gridView;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 //da sostituire con collegamento a nuova pagina utente
                 Toast.makeText(getApplicationContext(),"Switch to "+vector[position],Toast.LENGTH_SHORT).show();
                 networktask.SendDataToNetwork("start_server", "true");
-                openAccountPage();
+                openAccountPage(position);
             }
         });
 
@@ -74,8 +75,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void openAccountPage() {
+    private void openAccountPage(int pos) {
         Intent intent = new Intent(this, Account.class);
+        intent.putExtra( EXTRA_NUMBER, pos );
         startActivity(intent);
         this.finish();
     }

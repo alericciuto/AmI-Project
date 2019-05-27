@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.content.Context;
 import android.database.Cursor;
 
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -63,8 +64,8 @@ public class DatabaseAccess {
         return map;
     }
 
-    public void insertRecord(String name){
-        db.execSQL( "insert into UserTable (Name) values ('"+ name +"')" );
+    public void insertRecord(String name, StringBuffer preferences){
+        db.execSQL( "insert into UserTable (Name, Preferences) values ('"+ name +"','"+ preferences+"')" );
     }
 
     public void deleteRecord(String name){
@@ -75,6 +76,17 @@ public class DatabaseAccess {
             }
         }
         db.delete( "UserTable", "Id = ?",  new String[]{id.toString()});
+    }
+
+    public StringBuffer getUser(int id){
+        StringBuffer result = new StringBuffer();
+        c=db.rawQuery("select * from UserTable where Id = ?", new String[]{"id"});
+        while(c.moveToNext()){
+            String name = c.getString( 1 );
+            String text = c.getString( 2 );
+            result.append( name ).append( text );
+        }
+        return result;
     }
 
 }

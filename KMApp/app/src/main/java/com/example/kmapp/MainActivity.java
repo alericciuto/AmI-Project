@@ -17,12 +17,11 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_NUMBER = "com.example.application.example.EXTRA_NUMBER";
 
-    //public TextView result;
     private GridView gridView;
     private int image=R.drawable.user;      //volendo da rendere vettore
     private Button new_account;
     private ImageButton delete_account;
-    private NetworkTask networktask;
+    public NetworkTask networktask;
     private MediaPlayer mp;
 
 
@@ -54,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //da sostituire con collegamento a nuova pagina utente
                 Toast.makeText(getApplicationContext(),"Switch to "+vector[position],Toast.LENGTH_SHORT).show();
-                networktask.SendDataToNetwork("start_server", "true");
+                //networktask.SendDataToNetwork("start_server", "true");
                 openAccountPage(position+1);
             }
         });
@@ -101,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause(){
         super.onPause();
-        networktask.SendDataToNetwork("start_server", "false");
+        //networktask.SendDataToNetwork("start_server", "false");
     }
 
     @Override

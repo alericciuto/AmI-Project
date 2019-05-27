@@ -20,6 +20,8 @@ public class Account extends AppCompatActivity {
         Intent intent = getIntent();
         int id = intent.getIntExtra( MainActivity.EXTRA_NUMBER, 0);
 
+
+
         back_button = findViewById(R.id.back_button);
         textView = findViewById( R.id.textView3 );
 

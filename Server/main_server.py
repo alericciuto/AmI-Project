@@ -5,6 +5,7 @@ from detect_pressure import arduino_function
 
 
 def detect():
+
     eyes_thread.start()
     while True:
         main_event.acquire()

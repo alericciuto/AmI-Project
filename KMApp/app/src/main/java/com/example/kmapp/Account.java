@@ -19,6 +19,7 @@ public class Account extends AppCompatActivity {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_account );
 
+        MainActivity.networktask.SendDataToNetwork( "start_server", "true" );
         Intent intent = getIntent();
         int id = intent.getIntExtra( MainActivity.EXTRA_NUMBER, 0);
         conv_button = findViewById(R.id.conversation_button);
@@ -33,21 +34,25 @@ public class Account extends AppCompatActivity {
             }
         });
 
-        DatabaseAccess databaseAccess=DatabaseAccess.getInstance(getApplicationContext());
-        databaseAccess.open();
-        textView.setText( "Attivato account di " + databaseAccess.getUser(id) );
-        databaseAccess.close();
+        MainActivity.databaseAccess.open();
+        textView.setText( "Attivato account di " + MainActivity.databaseAccess.getUser(id) );
+        MainActivity.databaseAccess.close();
     }
 
     protected void openConversationActivity(final View view){
         Intent conv = new Intent(this, ConversationActivity.class);
         startActivity(conv);
-        this.finish();
+        MainActivity.networktask.SendDataToNetwork( "start_server", "false" );
     }
 
     private void openMainPage(){
-        //Intent refresh = new Intent(this, MainActivity.class);
-        //startActivity(refresh);
+        MainActivity.networktask.SendDataToNetwork( "start_server", "false" );
         this.finish();
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        MainActivity.networktask.SendDataToNetwork( "start_server", "true" );
     }
 }

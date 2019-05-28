@@ -16,11 +16,6 @@ import ai.api.model.AIResponse;
 import ai.api.model.ResponseMessage;
 import ai.api.model.Result;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.gson.JsonElement;
 
 import java.util.Collection;
@@ -39,23 +34,17 @@ import android.widget.TextView;
 
 public class ConversationActivity extends AppCompatActivity implements AIListener {
 
-    private Button listenButton;
     private TextView resultTextView;
     private AIService aiService;
     private int conversation_enable=0;
     private TextToSpeech tts;
-    private FirebaseDatabase database;
-    private DatabaseReference db_user;
-    private DatabaseReference db_categories;
     private int speech_error_limiter;
-    private int num_categories;
     private Map<Integer, String> cat = new TreeMap<Integer, String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
-        listenButton = (Button) findViewById(R.id.listenButton);
         resultTextView = (TextView) findViewById(R.id.resultTextView);
         final AIConfiguration config = new AIConfiguration("b23a9af0092b49de8bb3976eb20f33ad",
                 AIConfiguration.SupportedLanguages.English,
@@ -73,18 +62,8 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         activationCall();
         speech_error_limiter=0;
 
-        //INTERAZIONE CON FIREBASE DA METTERE NELLA FUNZIONE DI QUANDO SI SELEZIONANO GLI UTENTI
-        //serve collegamento a firebase
-        database = FirebaseDatabase.getInstance();
-        db_user = database.getReference("userInfo");
-        db_user.child("prefInfo").setValue("0 4 5 ");
+    }
 
-        //INTERAZIONE CON FIREBASE: categorie
-        readCategories();
-    }
-    public void listenButtonOnClick(final View view) {
-        aiService.startListening();
-    }
     protected void activationCall(){
         Handler a = new Handler();
         a.post(new Runnable() {
@@ -102,28 +81,8 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         }, 600);
     }
 
-    public void readCategories(){
-        db_categories = database.getReference("categoriesInfo");
-        db_categories.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                num_categories = dataSnapshot.child("quantity").getValue(Integer.class);
-                for(int i=0; i<num_categories; i++){
-                    String name = dataSnapshot.child("cat"+Integer.toString(i)+"name").getValue(String.class);
-                    int id = dataSnapshot.child("cat"+Integer.toString(i)+"id").getValue(Integer.class);
-                    cat.put(id, name);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
     public void onResult(final AIResponse response) {
         speech_error_limiter = 0;
-        readCategories();
         Result result = response.getResult();
         String x = cat.get(0);
 
@@ -231,8 +190,6 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         }, 800);
     }
     protected void endActivity() {
-        Intent conv = new Intent(this, Account.class);
-        startActivity(conv);
         this.finish();
     }
 

@@ -38,8 +38,6 @@ public class MusicPostConversation extends AppCompatActivity {
         audio.setStreamVolume(AudioManager.STREAM_MUSIC, actualVolume, AudioManager.FLAG_PLAY_SOUND);
 
         //CODICE PER TORNARE ALL'ATTIVITA' PRINCIPALE
-        Intent intent2 = new Intent(this, Account.class);
-        startActivity(intent2);
-        this.finish();
+        MusicPostConversation.super.onBackPressed();
     }
 }

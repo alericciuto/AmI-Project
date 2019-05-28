@@ -21,8 +21,9 @@ public class MainActivity extends AppCompatActivity {
     private int image=R.drawable.user;      //volendo da rendere vettore
     private Button new_account;
     private ImageButton delete_account;
-    public NetworkTask networktask;
+    public static NetworkTask networktask;
     private MediaPlayer mp;
+    public static DatabaseAccess databaseAccess;
 
 
     @Override
@@ -34,29 +35,13 @@ public class MainActivity extends AppCompatActivity {
 
         gridView=findViewById(R.id.query_grid);
 
-        DatabaseAccess databaseAccess=DatabaseAccess.getInstance(getApplicationContext());
-        databaseAccess.open();
-        final List<String> buffer=databaseAccess.getQuery();
-        databaseAccess.close();
+        databaseAccess=DatabaseAccess.getInstance(getApplicationContext());
 
-        final String[] vector= buffer.toArray(new String[0]);
-
-        MainAdapter adapter = new MainAdapter(MainActivity.this, vector, image);
-        gridView.setAdapter(adapter);
 
         mp = MediaPlayer.create(this, R.raw.alarm_sleeping);
         networktask = new NetworkTask(mp); //New instance of NetworkTask
         networktask.execute();
-
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //da sostituire con collegamento a nuova pagina utente
-                Toast.makeText(getApplicationContext(),"Switch to "+vector[position],Toast.LENGTH_SHORT).show();
-                //networktask.SendDataToNetwork("start_server", "true");
-                openAccountPage(position+1);
-            }
-        });
+        onResume();
 
         new_account.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -121,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //da sostituire con collegamento a nuova pagina utente
                 Toast.makeText(getApplicationContext(),"Switch to "+vector[position],Toast.LENGTH_SHORT).show();
-                networktask.SendDataToNetwork("start_server", "true");
                 openAccountPage(position+1);
             }
         });

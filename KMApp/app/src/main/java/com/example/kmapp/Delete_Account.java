@@ -31,10 +31,20 @@ public class Delete_Account extends AppCompatActivity {
             }
         });
 
-        DatabaseAccess databaseAccess=DatabaseAccess.getInstance(getApplicationContext());
-        databaseAccess.open();
-        final List<String> buffer=databaseAccess.getQuery();
-        databaseAccess.close();
+        loadUsers();
+
+    }
+
+    private void openMainPage(){
+        //Intent refresh = new Intent(this, MainActivity.class);
+        //startActivity(refresh);
+        this.finish();
+    }
+
+    private void loadUsers(){
+        MainActivity.databaseAccess.open();
+        final List<String> buffer=MainActivity.databaseAccess.getQuery();
+        MainActivity.databaseAccess.close();
 
         final String[] vector= buffer.toArray(new String[0]);
         MainAdapter adapter = new MainAdapter(Delete_Account.this, vector, image);
@@ -48,13 +58,8 @@ public class Delete_Account extends AppCompatActivity {
                 databaseAccess.open();
                 databaseAccess.deleteRecord(vector[position]);
                 databaseAccess.close();
+                loadUsers();
             }
         });
-    }
-
-    private void openMainPage(){
-        //Intent refresh = new Intent(this, MainActivity.class);
-        //startActivity(refresh);
-        this.finish();
     }
 }

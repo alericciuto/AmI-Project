@@ -7,16 +7,22 @@
     android:descendantFocusability="blocksDescendants">
 
     <CheckBox
-        android:clickable="false"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:id="@+id/checkBox"
-        android:layout_width="fill_parent"
+        android:id="@+id/checkbox"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="CheckBox"
-        android:textColor="#fff"
-        android:buttonTint="#fff"
-        tools:layout_editor_absoluteX="157dp"
-        tools:layout_editor_absoluteY="349dp"
-        tools:ignore="MissingConstraints" />
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="4dip"
+        android:layout_marginRight="10dip"
+        android:focusableInTouchMode="false"
+        android:focusable="false"
+        android:clickable="false">
+    </CheckBox>
+
+    <TextView
+        android:id="@+id/textviewCB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@+id/textviewCB"
+        android:textSize="30sp" >
+    </TextView>
 </LinearLayout>

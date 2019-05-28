@@ -1,6 +1,7 @@
 package com.example.kmapp;
 
-
+import android.content.Context;
+import android.view.LayoutInflater;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class New_Account extends AppCompatActivity {
@@ -36,8 +38,8 @@ public class New_Account extends AppCompatActivity {
     private ListView mListView;
     private int num_categories;
     private ArrayList<Categories> categories = new ArrayList<>( );
-    private ArrayList<String> array = new ArrayList<>( );
-    private ArrayAdapter<String> adapter;
+    private ArrayList<Categories> array = new ArrayList<>( );
+    private CategoriesAdapter adapter;
     private StringBuffer preferences = new StringBuffer();
 
     @Override
@@ -57,8 +59,7 @@ public class New_Account extends AppCompatActivity {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Object obj = parent.getAdapter().getItem(position);
-                CheckBox objCheckbox = (CheckBox) view.findViewById(R.id.checkBox);
+                CheckBox objCheckbox = (CheckBox) view.findViewById(R.id.checkbox);
                 Categories cat = categories.get( position );
                 if(cat.isChecked()) {
                     cat.setChecked(false);
@@ -116,14 +117,11 @@ public class New_Account extends AppCompatActivity {
                     cat.setChecked(false);
 
                     categories.add(cat);
-                    array.add(dataSnapshot.child("cat"+Integer.toString(i)+"name").getValue(String.class));
+                    array.add(cat);
                 }
 
-                adapter = new ArrayAdapter<String>( getApplicationContext(), R.layout.row, R.id.checkBox, array);
-
+                adapter = new CategoriesAdapter(getApplicationContext(), array);
                 mListView.setAdapter( adapter );
-
-
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {

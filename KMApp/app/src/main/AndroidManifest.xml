@@ -3,6 +3,7 @@
     package="com.example.kmapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
@@ -13,7 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Account"></activity>
+        <activity android:name=".MusicPostConversation"></activity>
+        <activity android:name=".ConversationActivity" />
+        <activity android:name=".Account" />
         <activity android:name=".Delete_Account" />
         <activity android:name=".New_Account" />
         <activity

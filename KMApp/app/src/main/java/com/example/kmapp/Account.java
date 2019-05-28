@@ -4,12 +4,14 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 public class Account extends AppCompatActivity {
 
     private ImageButton back_button;
+    private Button conv_button;
     private TextView textView;
 
     @Override
@@ -19,8 +21,7 @@ public class Account extends AppCompatActivity {
 
         Intent intent = getIntent();
         int id = intent.getIntExtra( MainActivity.EXTRA_NUMBER, 0);
-
-
+        conv_button = findViewById(R.id.conversation_button);
 
         back_button = findViewById(R.id.back_button);
         textView = findViewById( R.id.textView3 );
@@ -36,6 +37,12 @@ public class Account extends AppCompatActivity {
         databaseAccess.open();
         textView.setText( "Attivato account di " + databaseAccess.getUser(id) );
         databaseAccess.close();
+    }
+
+    protected void openConversationActivity(final View view){
+        Intent conv = new Intent(this, ConversationActivity.class);
+        startActivity(conv);
+        this.finish();
     }
 
     private void openMainPage(){

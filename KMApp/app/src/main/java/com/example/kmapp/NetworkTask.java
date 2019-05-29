@@ -40,7 +40,7 @@ public class NetworkTask extends AsyncTask<Void, byte[], Boolean> {
         boolean result = false;
         try {
             Log.i("AsyncTask", "doInBackground: Creating socket");
-            SocketAddress sockaddr = new InetSocketAddress("192.168.43.27", 5000);
+            SocketAddress sockaddr = new InetSocketAddress("192.168.43.58", 5000);
             nsocket = new Socket();
             nsocket.connect(sockaddr, 0); //10 second connection timeout
             if (nsocket.isConnected()) {

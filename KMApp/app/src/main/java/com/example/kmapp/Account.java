@@ -20,7 +20,6 @@ public class Account extends AppCompatActivity {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_account );
 
-        MainActivity.networktask.SendDataToNetwork( "start_server", "true" );
         Intent intent = getIntent();
         int id = intent.getIntExtra( MainActivity.EXTRA_NUMBER, 0);
         conv_button = findViewById(R.id.conversation_button);

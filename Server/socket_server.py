@@ -20,7 +20,7 @@ class SocketServer:
 
     def __init__(self):
         # self.host = socket.gethostbyname(socket.gethostname())
-        self.host = '192.168.43.58'
+        self.host = "192.168.43.27"
         self.port = 5000
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:

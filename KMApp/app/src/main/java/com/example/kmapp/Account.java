@@ -40,9 +40,9 @@ public class Account extends AppCompatActivity {
     }
 
     protected void openConversationActivity(final View view){
+        MainActivity.networktask.SendDataToNetwork( "start_server", "false" );
         Intent conv = new Intent(this, ConversationActivity.class);
         startActivity(conv);
-        MainActivity.networktask.SendDataToNetwork( "start_server", "false" );
     }
 
     private void openMainPage(){

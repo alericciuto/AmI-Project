@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.content.Context;
 import android.database.Cursor;
 
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +49,7 @@ public class DatabaseAccess {
             String name = c.getString(0);
             list.add(name);
         }
+        c.close();
         return list;
     }
 
@@ -61,6 +61,7 @@ public class DatabaseAccess {
             String name = c.getString( 1 );
             map.put( id, name );
         }
+        c.close();
         return map;
     }
 
@@ -86,6 +87,7 @@ public class DatabaseAccess {
             String text = c.getString( 2 );
             result.append( name ).append( text );
         }
+        c.close();
         return result;
     }
 

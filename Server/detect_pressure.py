@@ -10,12 +10,12 @@ def serial_connection(port):
 
 def arduino_function(driver):
     port = 'COM6'  # forse da cambiare con raspberry
-    #arduino = serial_connection(port)
+    arduino = serial_connection(port)
     while True:
         if not driver.is_connected():
             break
-        #x = int(arduino.readline().decode('utf-8').strip())
+        x = int(arduino.readline().decode('utf-8').strip())
         # it reads bytestream, convert it to utf-8 and then remove '/b'
-        #driver.flag_busy()
-        #driver.set_pressure(x)
-        #driver.flag_unbusy()
+        driver.flag_busy()
+        driver.set_pressure(x)
+        driver.flag_unbusy()

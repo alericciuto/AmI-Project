@@ -30,7 +30,7 @@ import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
+import android.widget.Toast;
 
 
 public class ConversationActivity extends AppCompatActivity implements AIListener {
@@ -53,6 +53,15 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         aiService = AIService.getService(this, config);
         aiService.setListener(this);
         speech_error_limiter=0;
+        TTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    TTS.setLanguage(Locale.US);
+                    Toast.makeText(getApplicationContext(), "Text To Speech Initialized", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         activationCall();
     }
 

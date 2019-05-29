@@ -33,17 +33,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if(status != TextToSpeech.ERROR) {
-                    tts.setLanguage(Locale.US);
-                    Toast.makeText(getApplicationContext(), "Text To Speech Initialized", Toast.LENGTH_SHORT).show();
-                    tts_init=1;
-                }
-            }
-        });
-
         setContentView(R.layout.activity_main);
         new_account = findViewById(R.id.new_account);
         delete_account = findViewById( R.id.delete_button );

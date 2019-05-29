@@ -41,14 +41,14 @@ public class Account extends AppCompatActivity {
     }
 
     protected void openConversationActivity(final View view){
-        if(MainActivity.tts_init==1){
+//        if(MainActivity.tts_init==1){
             MainActivity.networktask.SendDataToNetwork( "start_server", "false" );
             Intent conv = new Intent(this, ConversationActivity.class);
             startActivity(conv);
-        }
-        else{
-            Toast.makeText(this, "Conversation not avaiable yet!", Toast.LENGTH_SHORT).show();
-        }
+//        }
+//        else{
+//            Toast.makeText(this, "Conversation not avaiable yet!", Toast.LENGTH_SHORT).show();
+//        }
 
     }
 

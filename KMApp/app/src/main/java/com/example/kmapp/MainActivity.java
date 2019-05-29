@@ -3,6 +3,7 @@ package com.example.kmapp;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -12,6 +13,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -24,11 +26,24 @@ public class MainActivity extends AppCompatActivity {
     public static NetworkTask networktask;
     private MediaPlayer mp;
     public static DatabaseAccess databaseAccess;
-
+    public static TextToSpeech tts;
+    public static int tts_init=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    tts.setLanguage(Locale.US);
+                    Toast.makeText(getApplicationContext(), "Text To Speech Initialized", Toast.LENGTH_SHORT).show();
+                    tts_init=1;
+                }
+            }
+        });
+
         setContentView(R.layout.activity_main);
         new_account = findViewById(R.id.new_account);
         delete_account = findViewById( R.id.delete_button );

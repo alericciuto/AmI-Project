@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".MusicPostConversation"></activity>
+        <activity android:name=".MusicPostConversation" />
         <activity android:name=".ConversationActivity" />
         <activity android:name=".Account" />
         <activity android:name=".Delete_Account" />

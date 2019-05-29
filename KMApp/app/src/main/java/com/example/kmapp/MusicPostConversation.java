@@ -22,7 +22,7 @@ public class MusicPostConversation extends AppCompatActivity {
         stopMusicButton = (Button) findViewById(R.id.stopMusicButton);
         audio = (AudioManager)getSystemService(AUDIO_SERVICE);
         actualVolume= audio.getStreamVolume(AudioManager.STREAM_MUSIC);
-        audio.setStreamVolume(AudioManager.STREAM_MUSIC, this.audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC), AudioManager.FLAG_PLAY_SOUND);
+        //audio.setStreamVolume(AudioManager.STREAM_MUSIC, this.audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC), AudioManager.FLAG_PLAY_SOUND);
         songPlayer = MediaPlayer.create(this, R.raw.song);
         songPlayer.start();
         songPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {

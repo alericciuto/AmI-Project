@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class Account extends AppCompatActivity {
 
@@ -40,9 +41,15 @@ public class Account extends AppCompatActivity {
     }
 
     protected void openConversationActivity(final View view){
-        Intent conv = new Intent(this, ConversationActivity.class);
-        startActivity(conv);
-        MainActivity.networktask.SendDataToNetwork( "start_server", "false" );
+        if(MainActivity.tts_init==1){
+            MainActivity.networktask.SendDataToNetwork( "start_server", "false" );
+            Intent conv = new Intent(this, ConversationActivity.class);
+            startActivity(conv);
+        }
+        else{
+            Toast.makeText(this, "Conversation not avaiable yet!", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     private void openMainPage(){

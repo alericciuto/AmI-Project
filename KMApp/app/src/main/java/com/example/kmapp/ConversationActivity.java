@@ -4,6 +4,7 @@ package com.example.kmapp;
 import java.lang.Runnable;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -37,13 +38,13 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     private TextView resultTextView;
     private AIService aiService;
     private int conversation_enable=0;
-    private TextToSpeech tts;
     private int speech_error_limiter;
-    private Map<Integer, String> cat = new TreeMap<Integer, String>();
+    private TextToSpeech TTS;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TTS = MainActivity.tts;
         setContentView(R.layout.activity_conversation);
         resultTextView = (TextView) findViewById(R.id.resultTextView);
         final AIConfiguration config = new AIConfiguration("b23a9af0092b49de8bb3976eb20f33ad",
@@ -51,17 +52,8 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                 AIConfiguration.RecognitionEngine.System);
         aiService = AIService.getService(this, config);
         aiService.setListener(this);
-        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if(status != TextToSpeech.ERROR) {
-                    tts.setLanguage(Locale.US);
-                }
-            }
-        });
-        activationCall();
         speech_error_limiter=0;
-
+        activationCall();
     }
 
     protected void activationCall(){
@@ -75,8 +67,8 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         a.postDelayed(new Runnable() {
             @Override
             public void run() {
-                tts.speak("Activate Lifesaver Protocol", TextToSpeech.QUEUE_FLUSH, null, null);
-                while(tts.isSpeaking()){}
+                TTS.speak("Lifesaver Protocol", TextToSpeech.QUEUE_FLUSH, null, null);
+                while(TTS.isSpeaking()){}
             }
         }, 600);
     }
@@ -84,7 +76,6 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     public void onResult(final AIResponse response) {
         speech_error_limiter = 0;
         Result result = response.getResult();
-        String x = cat.get(0);
 
         // Get parameters
         String parameterString = "";
@@ -156,11 +147,11 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         a.postDelayed(new Runnable() {
             @Override
             public void run() {
-                tts.speak(reply, TextToSpeech.QUEUE_FLUSH, null, null);
+                TTS.speak(reply, TextToSpeech.QUEUE_FLUSH, null, null);
                 a.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        while(tts.isSpeaking()){}
+                        while(TTS.isSpeaking()){}
                         aiService.startListening();
                     }
                 }, 600);
@@ -178,11 +169,11 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         a.postDelayed(new Runnable() {
             @Override
             public void run() {
-                tts.speak(reply, TextToSpeech.QUEUE_FLUSH, null, null);
+                TTS.speak(reply, TextToSpeech.QUEUE_FLUSH, null, null);
                 a.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        while(tts.isSpeaking()){}
+                        while(TTS.isSpeaking()){}
                         endActivity();
                     }
                 }, 600);
@@ -213,11 +204,11 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
             a.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    tts.speak(reply, TextToSpeech.QUEUE_FLUSH, null, null);
+                    TTS.speak(reply, TextToSpeech.QUEUE_FLUSH, null, null);
                     a.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            while(tts.isSpeaking()){}
+                            while(TTS.isSpeaking()){}
                             aiService.startListening();
                         }
                     }, 600);

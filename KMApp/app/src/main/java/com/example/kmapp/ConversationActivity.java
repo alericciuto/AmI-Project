@@ -44,7 +44,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TTS = MainActivity.tts;
+//        TTS = MainActivity.tts;
         setContentView(R.layout.activity_conversation);
         resultTextView = (TextView) findViewById(R.id.resultTextView);
         final AIConfiguration config = new AIConfiguration("b23a9af0092b49de8bb3976eb20f33ad",
@@ -62,6 +62,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                 }
             }
         });
+
         activationCall();
     }
 

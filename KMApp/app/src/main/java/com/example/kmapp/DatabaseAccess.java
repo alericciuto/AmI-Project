@@ -85,10 +85,20 @@ public class DatabaseAccess {
         if(c.moveToFirst()){
             String name = c.getString( 1 );
             String text = c.getString( 2 );
-            result.append( name ).append( text );
+            result.append( name ).append(" ").append( text );
         }
         c.close();
         return result;
     }
 
+    public StringBuffer getPref(int id){
+        StringBuffer result = new StringBuffer();
+        c=db.rawQuery("select * from UserTable where Id = ?", new String[]{Integer.toString( id )});
+        if(c.moveToFirst()){
+            String pref = c.getString( 2 );
+            result.append( pref );
+        }
+        c.close();
+        return result;
+    }
 }

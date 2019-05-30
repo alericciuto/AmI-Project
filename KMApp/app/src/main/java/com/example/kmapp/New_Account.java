@@ -63,7 +63,10 @@ public class New_Account extends AppCompatActivity {
                 Categories cat = categories.get( position );
                 if(cat.isChecked()) {
                     cat.setChecked(false);
-                    preferences.toString().replace(Integer.toString(position)+" ", "");
+                    String p;
+                    p = preferences.toString().replace(Integer.toString(position)+" ", "");
+                    preferences = new StringBuffer();
+                    preferences.append(p);
                     objCheckbox.setChecked(false);
                 }
                 else{

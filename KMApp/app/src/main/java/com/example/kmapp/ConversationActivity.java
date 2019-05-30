@@ -44,7 +44,8 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        TTS = MainActivity.tts;
+        ObjectTTS obj = ((ObjectTTS) getApplicationContext());
+        TTS = obj.getTTS();
         setContentView(R.layout.activity_conversation);
         resultTextView = (TextView) findViewById(R.id.resultTextView);
         final AIConfiguration config = new AIConfiguration("b23a9af0092b49de8bb3976eb20f33ad",
@@ -53,15 +54,15 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         aiService = AIService.getService(this, config);
         aiService.setListener(this);
         speech_error_limiter=0;
-        TTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if(status != TextToSpeech.ERROR) {
-                    TTS.setLanguage(Locale.US);
-                    Toast.makeText(getApplicationContext(), "Text To Speech Initialized", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        //TTS = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+        //    @Override
+        //    public void onInit(int status) {
+        //        if(status != TextToSpeech.ERROR) {
+        //            TTS.setLanguage(Locale.US);
+        //            Toast.makeText(getApplicationContext(), "Text To Speech Initialized", Toast.LENGTH_SHORT).show();
+        //        }
+        //    }
+        //});
 
         activationCall();
     }

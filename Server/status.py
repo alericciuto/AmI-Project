@@ -5,15 +5,15 @@ from threading import Thread
 # verify the max pressure
 MAX_PRESSURE = 2000
 # eyelid depends on the user
-#self.max_eyelid = 0.38
-#self.min_eyelid = 0.09
+MAX_EYELID = 0.38
+MIN_EYELID = 0.09
 
 
 class Status:
 
     # finchè sensore non arriva -> valore di default
     def __init__(self, eyelid=-1, pressure=2 * MAX_PRESSURE / 3, previous_status="awake",
-                 flag_pressure_busy=False, connection=None, max_eyelid=0.38, min_eyelid=0.09):
+                 flag_pressure_busy=False, connection=None):
         self.eyelid = eyelid
         self.pressure = pressure
         self.previous_status = previous_status
@@ -21,9 +21,6 @@ class Status:
         self.connection = connection
         self.socket = SocketServer()
         self.event_connection = Condition()
-        self.max_eyelid = max_eyelid
-        self.min_eyelid = min_eyelid
-        
 
     def set_eyelid(self, eyelid):
         self.eyelid = eyelid
@@ -44,7 +41,7 @@ class Status:
     def is_awake(self):
         while self.flag_pressure_busy:
             pass
-        if ((self.eyelid - self.min_eyelid) / (self.max_eyelid - self.min_eyelid)) * 80 + (self.pressure / MAX_PRESSURE) * 20 > 60:
+        if ((self.eyelid - MIN_EYELID) / (MAX_EYELID - MIN_EYELID)) * 80 + (self.pressure / MAX_PRESSURE) * 20 > 60:
             return True
         else:
             return False
@@ -52,7 +49,7 @@ class Status:
     def is_half_asleep(self):
         while self.flag_pressure_busy:
             pass
-        if 50 <= ((self.eyelid - self.min_eyelid) / (self.max_eyelid - self.min_eyelid)) * 80 + (
+        if 50 <= ((self.eyelid - MIN_EYELID) / (MAX_EYELID - MIN_EYELID)) * 80 + (
                 self.pressure / MAX_PRESSURE) * 20 <= 60:
             return True
         else:
@@ -61,7 +58,7 @@ class Status:
     def is_asleep(self):
         while self.flag_pressure_busy:
             pass
-        if ((self.eyelid - self.min_eyelid) / (self.max_eyelid - self.min_eyelid)) * 80 + (self.pressure / MAX_PRESSURE) * 20 < 50 or \
+        if ((self.eyelid - MIN_EYELID) / (MAX_EYELID - MIN_EYELID)) * 80 + (self.pressure / MAX_PRESSURE) * 20 < 50 or \
                 (self.pressure / MAX_PRESSURE) * 100 < 20:
             return True
         else:
@@ -117,9 +114,9 @@ class Status:
         self.socket.send({"sound": "off"})
 
     def receive_data(self):
+        self.socket.accept()
         while True:
             print("\n>> Waiting for a client...")
-            self.socket.accept()
             while True:
                 data = self.socket.recv()
                 if data["start_server"] is not None and data["start_server"] == "true":
@@ -136,18 +133,6 @@ class Status:
     def start_listener(self):
         receiver = Thread(target=self.receive_data, name="receiver")
         receiver.start()
-        
-    def get_min_eyelid(self):
-        return self.min_eyelid
-    
-    def get_max_eyelid(self):
-        return self.max_eyelid
-
-    def set_min_eyelid(self,min_eyelid):
-        self.min_eyelid = min_eyelid
-
-    def set_max_eyelid(self,max_eyelid):
-        self.max_eyelid = max_eyelid
 
 
 

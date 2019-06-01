@@ -1,27 +1,21 @@
 package com.example.kmapp;
 
-import android.app.Activity;
 import android.content.Context;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+
 
 public class CategoriesAdapter extends ArrayAdapter<Categories> {
 
     private final ArrayList<Categories> list;
     private final Context context;
-    boolean checkAll_flag = false;
-    boolean checkItem_flag = false;
 
     public CategoriesAdapter(Context context, ArrayList<Categories> list) {
         super(context, R.layout.row, list);

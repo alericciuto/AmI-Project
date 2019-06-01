@@ -1,10 +1,9 @@
 package com.example.kmapp;
 
-import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -16,6 +15,8 @@ public class Delete_Account extends AppCompatActivity {
     private ImageButton back_button;
     private GridView gridView;
     private int image=R.drawable.userdel;
+    private DatabaseAccess databaseAccess;
+    private String[] users;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +32,28 @@ public class Delete_Account extends AppCompatActivity {
             }
         });
 
+        databaseAccess = ((MyApplication) this.getApplication()).getDatabaseAccess();
+
         loadUsers();
+
+        gridView.setOnItemClickListener((parent, view, position, id) -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            builder.setTitle("Confirm");
+            builder.setMessage("Delete " + users[position] + "?");
+
+            builder.setPositiveButton("YES", (dialog, which) -> {
+                Toast.makeText(getApplicationContext(),"Deleting "+users[position]+"...",Toast.LENGTH_SHORT).show();
+                databaseAccess.deleteUser(users[position]);
+                loadUsers();
+                dialog.dismiss();
+            });
+
+            builder.setNegativeButton("NO", (dialog, which) -> dialog.dismiss());
+
+            AlertDialog alert = builder.create();
+            alert.show();
+        });
 
     }
 
@@ -42,24 +64,10 @@ public class Delete_Account extends AppCompatActivity {
     }
 
     private void loadUsers(){
-        MainActivity.databaseAccess.open();
-        final List<String> buffer=MainActivity.databaseAccess.getQuery();
-        MainActivity.databaseAccess.close();
+        final List<String> users_list=databaseAccess.getUserNames();
 
-        final String[] vector= buffer.toArray(new String[0]);
-        MainAdapter adapter = new MainAdapter(Delete_Account.this, vector, image);
+        users = users_list.toArray(new String[0]);
+        MainAdapter adapter = new MainAdapter(Delete_Account.this, users, image);
         gridView.setAdapter(adapter);
-
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getApplicationContext(),"Deleting "+vector[position]+"...",Toast.LENGTH_SHORT).show(); //da sostituire con collegamento a nuova pagina utente
-                DatabaseAccess databaseAccess=DatabaseAccess.getInstance(getApplicationContext());
-                databaseAccess.open();
-                databaseAccess.deleteRecord(vector[position]);
-                databaseAccess.close();
-                loadUsers();
-            }
-        });
     }
 }

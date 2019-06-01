@@ -1,9 +1,7 @@
 package com.example.kmapp;
 
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,21 +11,16 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import java.util.List;
-import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
-    public static final String EXTRA_NUMBER = "com.example.application.example.EXTRA_NUMBER";
 
     private GridView gridView;
     private int image=R.drawable.user;      //volendo da rendere vettore
     private Button new_account;
     private ImageButton delete_account;
-    public static NetworkTask networktask;
-    private MediaPlayer mp;
-    public static DatabaseAccess databaseAccess;
-    public static TextToSpeech tts;
-    public static int tts_init=0;
+    private User[] users;
+    private DatabaseAccess databaseAccess;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,11 +34,13 @@ public class MainActivity extends AppCompatActivity {
 
         databaseAccess=DatabaseAccess.getInstance(getApplicationContext());
 
+        ((MyApplication) this.getApplication()).setDatabase();
+        databaseAccess = ((MyApplication) this.getApplication()).getDatabaseAccess();
 
-        mp = MediaPlayer.create(this, R.raw.alarm_sleeping);
-        networktask = new NetworkTask(mp); //New instance of NetworkTask
-        networktask.execute();
-        onResume();
+        loadUsers();
+
+        ((MyApplication) this.getApplication()).setMediaPlayer();
+        ((MyApplication) this.getApplication()).setNetworkTask();
 
         new_account.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -63,9 +58,30 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void openAccountPage(int pos) {
+    private void loadUsers() {
+        List<User> users_list=databaseAccess.getAllUsers();
+        if(users_list == null)
+            return;
+
+        users = users_list.toArray(new User[0]);
+
+        MainAdapter adapter = new MainAdapter(MainActivity.this,
+                                                users_list.stream().map(User::getName).toArray(String[]::new),
+                                                image);
+        gridView.setAdapter(adapter);
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getApplicationContext(),"Switch to " + users[position].getName(), Toast.LENGTH_SHORT).show();
+                openAccountPage(users[position].getName());
+            }
+        });
+    }
+
+    private void openAccountPage(String user) {
         Intent intent = new Intent(this, Account.class);
-        intent.putExtra( EXTRA_NUMBER, pos );
+        intent.putExtra( "USERNAME", user );
         startActivity(intent);
     }
 
@@ -80,49 +96,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    @Override
-    protected void onDestroy() {
-        networktask.cancel(true); //In case the task is currently running
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onPause(){
-        super.onPause();
-        //networktask.SendDataToNetwork("start_server", "false");
-    }
 
     @Override
     protected void onResume(){
         super.onResume();
-        DatabaseAccess databaseAccess=DatabaseAccess.getInstance(getApplicationContext());
-        databaseAccess.open();
-        final List<String> buffer=databaseAccess.getQuery();
-        databaseAccess.close();
-
-        final String[] vector= buffer.toArray(new String[0]);
-
-        MainAdapter adapter = new MainAdapter(MainActivity.this, vector, image);
-        gridView.setAdapter(adapter);
-
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //da sostituire con collegamento a nuova pagina utente
-                Toast.makeText(getApplicationContext(),"Switch to "+vector[position],Toast.LENGTH_SHORT).show();
-                openAccountPage(position+1);
-            }
-        });
-    }
-
-    @Override
-    protected void onStop(){
-        super.onStop();
-    }
-
-    @Override
-    protected void onStart(){
-        super.onStart();
+        loadUsers();
     }
 
 }

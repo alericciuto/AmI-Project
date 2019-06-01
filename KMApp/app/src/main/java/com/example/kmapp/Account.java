@@ -1,7 +1,6 @@
 package com.example.kmapp;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,7 +10,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -20,13 +18,17 @@ import android.widget.Toast;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Objects;
+
 public class Account extends AppCompatActivity {
 
     private ImageButton back_button;
     private Button conv_button;
     private TextView textView;
-    private FirebaseDatabase database;
+    private FirebaseDatabase firebase;
     private DatabaseReference db_user;
+    private NetworkTask networktask;
+    private DatabaseAccess databaseAccess;
 
     private int PERMISSION_CODE = 1;
 
@@ -35,58 +37,61 @@ public class Account extends AppCompatActivity {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_account );
 
-        onResume();
-        Intent intent = getIntent();
-        int id = intent.getIntExtra( MainActivity.EXTRA_NUMBER, 0);
-        conv_button = findViewById(R.id.conversation_button);
+        networktask = ((MyApplication) this.getApplication()).getNetworktask();
+        networktask.addData( "start_server", "true" );
+        networktask.SendDataToNetwork();
 
+        Intent intent = getIntent();
+        String userName = Objects.requireNonNull(intent.getExtras()).getString( "USERNAME");
+
+        conv_button = findViewById(R.id.conversation_button);
         back_button = findViewById(R.id.back_button);
         textView = findViewById( R.id.textView3 );
 
-        back_button.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                openMainPage();
-            }
-        });
+        back_button.setOnClickListener(v -> openMainPage());
 
-        MainActivity.databaseAccess.open();
-        textView.setText( "Attivato account di " + MainActivity.databaseAccess.getUser(id) );
-        MainActivity.databaseAccess.close();
+        conv_button.setOnClickListener(v -> openConversationActivity() );
 
-        database = FirebaseDatabase.getInstance();
-        MainActivity.databaseAccess.open();
-        StringBuffer buffer = MainActivity.databaseAccess.getPref( id );
-        MainActivity.databaseAccess.close();
-        db_user = database.getReference("userInfo");
-        db_user.child("prefInfo").setValue(buffer.toString().substring(0, (buffer.toString().length()-1)));
 
+        databaseAccess = ((MyApplication) this.getApplication()).getDatabaseAccess();
+        User user = databaseAccess.getUser(userName);
+        textView.setText(String.format("Attivato account di %s\nPreferenze = %s",
+                                        user.getName(),
+                                        user.getPreferences()));
+
+        firebase = FirebaseDatabase.getInstance();
+        String buffer = databaseAccess.getPreferences(userName);
+        db_user = firebase.getReference("userInfo");
+        db_user.child("prefInfo").setValue(buffer);
     }
 
-    protected void openConversationActivity(final View view){
-        while(ContextCompat.checkSelfPermission( Account.this, Manifest.permission.RECORD_AUDIO ) == PackageManager.PERMISSION_DENIED) {
+    protected void openConversationActivity(){
+        if(ContextCompat.checkSelfPermission( Account.this, Manifest.permission.RECORD_AUDIO ) == PackageManager.PERMISSION_DENIED) {
             RequestRecordPermission();
         }
-//        if(MainActivity.tts_init==1){
-            MainActivity.networktask.SendDataToNetwork( "start_server", "false" );
-            Intent conv = new Intent( this, ConversationActivity.class );
-            startActivity( conv );
-//        }
-//        else{
-//            Toast.makeText(this, "Conversation not avaiable yet!", Toast.LENGTH_SHORT).show();
-//        }
+        if(ContextCompat.checkSelfPermission( Account.this, Manifest.permission.RECORD_AUDIO ) == PackageManager.PERMISSION_DENIED) {
+            return;
+        }
+
+        networktask.addData( "start_server", "false" );
+        networktask.SendDataToNetwork();
+        Intent conv = new Intent( this, ConversationActivity.class );
+        startActivity( conv );
+        this.finish();
+
     }
 
     private void RequestRecordPermission() {
         if(ActivityCompat.shouldShowRequestPermissionRationale( this, Manifest.permission.RECORD_AUDIO )){
 
             new AlertDialog.Builder( this )
-                    .setTitle( "Permission needed" )
+                    .setTitle( "Permission" )
                     .setMessage( "This permission is needed to start the conversation." )
                     .setPositiveButton( "Ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             ActivityCompat.requestPermissions( Account.this, new String[] {Manifest.permission.RECORD_AUDIO}, PERMISSION_CODE );
+                            dialog.dismiss();
                         }
                     } )
                     .setNegativeButton( "Cancel", new DialogInterface.OnClickListener() {
@@ -114,13 +119,15 @@ public class Account extends AppCompatActivity {
     }
 
     private void openMainPage(){
-        MainActivity.networktask.SendDataToNetwork( "start_server", "false" );
-        this.finish();
+        networktask.addData( "start_server", "false" );
+        networktask.SendDataToNetwork();
+        this.onBackPressed();
     }
 
     @Override
     protected void onResume(){
         super.onResume();
-        MainActivity.networktask.SendDataToNetwork( "start_server", "true" );
+        networktask.addData( "start_server", "true" );
+        networktask.SendDataToNetwork();
     }
 }

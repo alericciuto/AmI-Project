@@ -5,10 +5,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.content.Context;
 import android.database.Cursor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DatabaseAccess {
     private SQLiteOpenHelper openHelper;
@@ -41,64 +41,82 @@ public class DatabaseAccess {
         }
     }
 
-    //return the database
-    public List<String> getQuery(){
-        ArrayList<String> list = new ArrayList<>();
-        c=db.rawQuery("select Name from UserTable", new String[]{});
+
+    public List<User> getAllUsers(){
+        open();
+        List<User> list = new LinkedList<>();
+        c=db.rawQuery("select * from UserTable", new String[]{});
+        if( c == null)
+            return list;
         while(c.moveToNext()){
-            String name = c.getString(0);
-            list.add(name);
+            User user = new User();
+            user.setName(c.getString(0));
+            System.out.println(user.getName());
+            System.out.println(c.getString(1));
+            user.setPreferences(Arrays.stream(c.getString(1)
+                                    .split(" ")
+                                ).map(Integer::parseInt)
+                                .collect(Collectors.toList()));
+            user.setMAX_EYELID(Float.parseFloat(c.getString(2)));
+            user.setMIN_EYELID(Float.parseFloat(c.getString(3)));
+            user.setMAX_PRESSURE(Integer.parseInt(c.getString(4)));
+            list.add(user);
         }
         c.close();
+        close();
         return list;
     }
 
-    public Map<Integer, String> getQueryMap(){
-        Map<Integer, String> map = new HashMap<>();
-        c=db.rawQuery("select * from UserTable", new String[]{});
-        while(c.moveToNext()){
-            Integer id = c.getInt( 0 );
-            String name = c.getString( 1 );
-            map.put( id, name );
-        }
-        c.close();
-        return map;
+    public void insertUser(User user){
+        open();
+        db.execSQL( "insert into UserTable (Name, Preferences, MAX_EYELID, MIN_EYELID, MAX_PRESSURE) values " +
+                "('"+ user.getName() +"','"+
+                      user.getPreferences().stream().map(String::valueOf).collect(Collectors.joining(" "))+"','"+
+                      user.getMAX_EYELID()+"','"+
+                      user.getMIN_EYELID()+"','"+
+                      user.getMAX_PRESSURE()+
+                "')" );
+        close();
     }
 
-    public void insertRecord(String name, StringBuffer preferences){
-        db.execSQL( "insert into UserTable (Name, Preferences) values ('"+ name +"','"+ preferences+"')" );
+    public void deleteUser(String name){
+        open();
+        db.delete( "UserTable", "Name = ?",  new String[]{name});
+        close();
     }
 
-    public void deleteRecord(String name){
-        Integer id=0;
-        for(Map.Entry<Integer,String> entry: getQueryMap().entrySet()){
-            if(entry.getValue().equals( name )) {
-                id = entry.getKey();
-            }
-        }
-        db.delete( "UserTable", "Id = ?",  new String[]{id.toString()});
-    }
-
-    public StringBuffer getUser(int id){
-        StringBuffer result = new StringBuffer();
-        c=db.rawQuery("select * from UserTable where Id = ?", new String[]{Integer.toString( id )});
+    public User getUser(String name){
+        open();
+        User user = new User();
+        c=db.rawQuery("select * from UserTable where Name = ?", new String[]{name});
         if(c.moveToFirst()){
-            String name = c.getString( 1 );
-            String text = c.getString( 2 );
-            result.append( name ).append(" ").append( text );
+            user.setName(c.getString(0));
+            user.setPreferences(Arrays.stream(c.getString(1)
+                                            .split(" ")
+                                    ).map(Integer::parseInt)
+                                    .collect(Collectors.toList())
+                                );
+            user.setMAX_EYELID(Float.parseFloat(c.getString(2)));
+            user.setMIN_EYELID(Float.parseFloat(c.getString(3)));
+            user.setMAX_PRESSURE(Integer.parseInt(c.getString(4)));
         }
         c.close();
-        return result;
+        close();
+        return user;
     }
 
-    public StringBuffer getPref(int id){
-        StringBuffer result = new StringBuffer();
-        c=db.rawQuery("select * from UserTable where Id = ?", new String[]{Integer.toString( id )});
-        if(c.moveToFirst()){
-            String pref = c.getString( 2 );
-            result.append( pref );
-        }
-        c.close();
-        return result;
+    public List<String> getUserNames(){
+        List<User> list = getAllUsers();
+        if(!list.isEmpty())
+            return getAllUsers().stream()
+                    .map(User::getName)
+                    .collect(Collectors.toList());
+        else return new LinkedList<>();
+    }
+
+    public String getPreferences(String name){
+        return getUser(name).getPreferences().stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(" "));
     }
 }

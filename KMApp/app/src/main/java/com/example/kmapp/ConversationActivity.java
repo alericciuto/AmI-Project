@@ -4,9 +4,7 @@ package com.example.kmapp;
 import java.lang.Runnable;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import ai.api.AIListener;
@@ -19,18 +17,11 @@ import ai.api.model.Result;
 
 import com.google.gson.JsonElement;
 
-import java.util.Collection;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 
 import android.speech.tts.TextToSpeech;
 
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 public class ConversationActivity extends AppCompatActivity implements AIListener {
@@ -44,8 +35,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ObjectTTS obj = ((ObjectTTS) getApplicationContext());
-        TTS = obj.getTTS();
+        TTS = ((MyApplication) getApplicationContext()).getTTS();
         setContentView(R.layout.activity_conversation);
         resultTextView = (TextView) findViewById(R.id.resultTextView);
         final AIConfiguration config = new AIConfiguration("b23a9af0092b49de8bb3976eb20f33ad",

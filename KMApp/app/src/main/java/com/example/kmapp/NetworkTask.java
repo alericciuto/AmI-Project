@@ -4,6 +4,7 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -93,23 +94,27 @@ public class NetworkTask extends AsyncTask<Void, byte[], Boolean> {
         return result;
     }
 
-    public void SendDataToNetwork(final String name, final String value) {
+    public void addData(final String name, final String value){
+        try {
+            jsonSend.put(name, value);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void SendDataToNetwork() {
         if (nsocket.isConnected()) {
             Log.i("AsyncTask","SendDataToNetwork: Writing received message to socket");
-            new Thread(new Runnable() {
-                public void run() {
-                    try {
-                        System.out.println("json : "+ jsonSend);
-                        jsonSend.put(name, value);
-                        System.out.println("json : "+ jsonSend);
-                        OutputStreamWriter out = new OutputStreamWriter(nos, StandardCharsets.UTF_8);
-                        Log.i("AsyncTask","SendDataToNetwork: Trying to send: " + jsonSend.toString().getBytes().length+jsonSend.toString());
-                        out.write(jsonSend.toString().getBytes().length+"\n"+jsonSend.toString());
-                        out.flush();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Log.i("AsyncTask","SendDataToNetwork: Message send failed. Caught an exception");
-                    }
+            new Thread(() -> {
+                try {
+                    OutputStreamWriter out = new OutputStreamWriter(nos, StandardCharsets.UTF_8);
+                    Log.i("AsyncTask","SendDataToNetwork: Trying to send: " + jsonSend.toString().getBytes().length+jsonSend.toString());
+                    out.write(jsonSend.toString().getBytes().length+"\n"+jsonSend.toString());
+                    out.flush();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i("AsyncTask","SendDataToNetwork: Message send failed. Caught an exception");
                 }
             }).start();
         }

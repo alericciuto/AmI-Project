@@ -1,14 +1,10 @@
 package com.example.kmapp;
 
-import android.content.Context;
-import android.view.LayoutInflater;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -23,7 +19,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class New_Account extends AppCompatActivity {
@@ -32,15 +29,15 @@ public class New_Account extends AppCompatActivity {
     private Button confirm_button;
     private ImageButton back_button;
 
-    private FirebaseDatabase database;
+    private FirebaseDatabase firebase;
     private DatabaseReference db_categories;
+    private DatabaseAccess databaseAccess;
 
     private ListView mListView;
     private int num_categories;
     private ArrayList<Categories> categories = new ArrayList<>( );
-    private ArrayList<Categories> array = new ArrayList<>( );
     private CategoriesAdapter adapter;
-    private StringBuffer preferences = new StringBuffer();
+    private List<Integer> preferences = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,52 +47,45 @@ public class New_Account extends AppCompatActivity {
         editName = findViewById(R.id.input_name);
         confirm_button = findViewById(R.id.confirm_button);
         back_button = findViewById(R.id.back_button);
+        mListView = findViewById( R.id.listView );
 
-        database = FirebaseDatabase.getInstance();
-        mListView = (ListView) findViewById( R.id.listView );
 
-        readCategories();
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        firebase = FirebaseDatabase.getInstance();
+        adapter = new CategoriesAdapter(getApplicationContext(), readCategories());
+        mListView.setAdapter( adapter );
 
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                CheckBox objCheckbox = (CheckBox) view.findViewById(R.id.checkbox);
-                Categories cat = categories.get( position );
-                if(cat.isChecked()) {
-                    cat.setChecked(false);
-                    String p;
-                    p = preferences.toString().replace(Integer.toString(position)+" ", "");
-                    preferences = new StringBuffer();
-                    preferences.append(p);
-                    objCheckbox.setChecked(false);
-                }
-                else{
-                    cat.setChecked( true );
-                    preferences.append( Integer.toString(position) + " " );
-                    objCheckbox.setChecked(true);
-                }
+        databaseAccess = ((MyApplication) this.getApplication()).getDatabaseAccess();
 
-                categories.set( position, cat );
+        mListView.setOnItemClickListener((parent, view, position, id) -> {
+            CheckBox objCheckbox = (CheckBox) view.findViewById(R.id.checkbox);
+            Categories cat = categories.get( position );
+            if(cat.isChecked()) {
+                cat.setChecked(false);
+                preferences.remove(position);
+                objCheckbox.setChecked(false);
             }
+            else{
+                cat.setChecked( true );
+                preferences.add(position);
+                objCheckbox.setChecked(true);
+            }
+
+            categories.set( position, cat );
         });
-        confirm_button.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                name = editName.getText().toString().trim();
-                if(name.equals("")){
-                    Toast.makeText(getApplicationContext(),"Be careful! Some fields are empty.",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                else{
+        confirm_button.setOnClickListener(v -> {
+            name = editName.getText().toString().trim();
+            if(name.equals(""))
+                Toast.makeText(getApplicationContext(),"Username is necessary!",Toast.LENGTH_SHORT).show();
+            else{
+                if(preferences.isEmpty())
+                    preferences.addAll(categories.stream().map(Categories::getId).collect(Collectors.toList()));
+                databaseAccess.insertUser(new User(name, preferences));
+                Toast.makeText(getApplicationContext(),"New Account saved",Toast.LENGTH_SHORT).show();
 
-                    DatabaseAccess databaseAccess=DatabaseAccess.getInstance(getApplicationContext());
-                    databaseAccess.open();
-                    databaseAccess.insertRecord(name, preferences);
-                    databaseAccess.close();
-                    Toast.makeText(getApplicationContext(),"New Account saved",Toast.LENGTH_SHORT).show();
-
-                    New_Account.super.onBackPressed();
-                }
+                Intent initConf = new Intent( New_Account.this, InitialConfiguration.class );
+                initConf.putExtra( "USERNAME", name );
+                startActivity( initConf );
+                New_Account.this.finish();
             }
         });
 
@@ -107,8 +97,9 @@ public class New_Account extends AppCompatActivity {
         });
     }
 
-    public void readCategories(){
-        db_categories = database.getReference("categoriesInfo");
+    public ArrayList<Categories> readCategories(){
+        ArrayList<Categories> array = new ArrayList<>();
+        db_categories = firebase.getReference("categoriesInfo");
         db_categories.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -122,16 +113,12 @@ public class New_Account extends AppCompatActivity {
                     categories.add(cat);
                     array.add(cat);
                 }
-
-                adapter = new CategoriesAdapter(getApplicationContext(), array);
-                mListView.setAdapter( adapter );
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
-
-
+        return array;
     }
 
 

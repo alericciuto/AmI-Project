@@ -1,8 +1,6 @@
 package com.example.kmapp;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-
 import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
 public class DatabaseOpenHelper extends SQLiteAssetHelper {

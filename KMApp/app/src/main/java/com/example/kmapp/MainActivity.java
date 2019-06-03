@@ -2,16 +2,19 @@ package com.example.kmapp;
 
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -22,15 +25,16 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton delete_account;
     private User[] users;
     private DatabaseAccess databaseAccess;
+    private ProgressBar pb;
+    private TextToSpeech tts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
         new_account = findViewById(R.id.new_account);
         delete_account = findViewById( R.id.delete_button );
-
+        pb = findViewById(R.id.progress_bar);
         gridView=findViewById(R.id.query_grid);
 
         databaseAccess=DatabaseAccess.getInstance(getApplicationContext());
@@ -38,7 +42,33 @@ public class MainActivity extends AppCompatActivity {
         ((MyApplication) this.getApplication()).setDatabase();
         databaseAccess = ((MyApplication) this.getApplication()).getDatabaseAccess();
 
-        loadUsers();
+        pb.setVisibility(View.VISIBLE);
+        new_account.setVisibility( View.GONE );
+        gridView.setVisibility( View.GONE );
+        delete_account.setVisibility( View.GONE );
+
+        //fill the list view with the task list
+
+        tts = ((MyApplication) MainActivity.this.getApplication()).getTTS();
+        tts = new TextToSpeech(MainActivity.this, status -> {
+            if (status != TextToSpeech.ERROR) {
+                tts.setLanguage( Locale.US);
+                Toast.makeText(getApplicationContext(), "Text To Speech Initialized", Toast.LENGTH_SHORT).show();
+            }
+            if(tts != null) {
+                ((MyApplication) MainActivity.this.getApplication()).setTTS(tts);
+                loadUsers();
+                gridView.setVisibility( View.VISIBLE );
+                delete_account.setVisibility( View.VISIBLE );
+                new_account.setVisibility( View.VISIBLE);
+                pb.setVisibility(View.GONE);
+            }
+            else{
+                Toast toast = Toast.makeText(getApplicationContext(), "OPS, something goes wrong!", Toast.LENGTH_LONG);
+                toast.show();
+            }
+        });
+
 
         ((MyApplication) this.getApplication())
                 .setNetworkTask(MediaPlayer.create(this, R.raw.alarm_sleeping));

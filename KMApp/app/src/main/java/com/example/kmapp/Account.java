@@ -58,9 +58,10 @@ public class Account extends AppCompatActivity {
         back_button.setOnClickListener(v -> openMainPage());
 
         conv_button.setOnClickListener(v -> {
-            if(! user.is_configured()){
-                openInitialConfig();
-            }else openConversationActivity();
+//            if(! user.is_configured()){
+//                openInitialConfig();
+//            }else openConversationActivity();
+            openConversationActivity();
         });
 
         detect_button.setOnClickListener(v -> {

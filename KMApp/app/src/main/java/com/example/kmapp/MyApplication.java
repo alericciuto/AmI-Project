@@ -15,17 +15,6 @@ public class MyApplication extends Application {
 
     private TextToSpeech tts;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        tts = new TextToSpeech(this, status -> {
-            if(status != TextToSpeech.ERROR) {
-                tts.setLanguage(Locale.US);
-                Toast.makeText(getApplicationContext(), "Text To Speech Initialized", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     public void setDatabase(){
         this.databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
     }
@@ -45,5 +34,9 @@ public class MyApplication extends Application {
 
     public TextToSpeech getTTS(){
         return tts;
+    }
+
+    public void setTTS(TextToSpeech tts){
+        this.tts = tts;
     }
 }

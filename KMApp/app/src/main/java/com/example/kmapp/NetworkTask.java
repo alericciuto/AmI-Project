@@ -18,16 +18,19 @@ import java.nio.charset.StandardCharsets;
 
 
 public class NetworkTask extends AsyncTask<Void, byte[], Boolean> {
-    private Socket nsocket; //Network Socket
+    private Socket socket; //Network Socket
     private InputStream nis; //Network Input Stream
     private OutputStream nos; //Network Output Stream
     private JSONObject jsonSend = new JSONObject();
     private JSONObject jsonRecv = new JSONObject();
     private MediaPlayer mp;
 
+    private String HOST = "192.168.43.58";
+    private int PORT = 5000;
+
     public NetworkTask(MediaPlayer mp){
         this.mp = mp;
-        mp.setLooping(true);
+        this.mp.setLooping(true);
     }
 
 
@@ -40,103 +43,120 @@ public class NetworkTask extends AsyncTask<Void, byte[], Boolean> {
     protected Boolean doInBackground(Void... params) { //This runs on a different thread
         boolean result = false;
         try {
-            Log.i("AsyncTask", "doInBackground: Creating socket");
-            SocketAddress sockaddr = new InetSocketAddress("192.168.43.58", 5000);
-            nsocket = new Socket();
-            nsocket.connect(sockaddr, 0); //10 second connection timeout
-            if (nsocket.isConnected()) {
-                nis = nsocket.getInputStream();
-                nos = nsocket.getOutputStream();
-                Log.i("AsyncTask", "doInBackground: Socket created, streams assigned");
-                Log.i("AsyncTask", "doInBackground: Waiting for initial data...");
-                byte[] buffer = new byte[4096];
-                int read = nis.read(buffer, 0, 4096); //This is blocking
-                while(read != -1){
-                    byte[] tempdata = new byte[read];
-                    System.arraycopy(buffer, 0, tempdata, 0, read);
-                    publishProgress(tempdata);
-                    String data = new String(tempdata);
-                    try {
-                        jsonRecv = new JSONObject(data);
-                        Log.i("AsyncTask", "doInBackground: Received : " + data);
-                        System.out.println( jsonRecv);
-                        if( jsonRecv.get("sound").equals("on") )
-                            mp.start();
-                        else if ( jsonRecv.get("sound").equals("off") )
-                            mp.pause();
-                    } catch(org.json.JSONException e){
-                        Log.i("AsyncTask", "doInBackground: Length : " + data);
-                    }
-                    Log.i("AsyncTask", "doInBackground: Got some data");
-                    read = nis.read(buffer, 0, 4096); //This is blocking
-                }
+            Log.i("NetworkTask", "doInBackground: Creating socket");
+            SocketAddress sockaddr = new InetSocketAddress( HOST, PORT );
+            socket = new Socket();
+            socket.connect(sockaddr, 0); //10 second connection timeout
+            if (socket.isConnected()) {
+                nis = socket.getInputStream();
+                nos = socket.getOutputStream();
+                result = true;
+                Log.i("NetworkTask", "doInBackground: Socket created, streams assigned");
             }
         } catch (IOException e) {
             e.printStackTrace();
-            Log.i("AsyncTask", "doInBackground: IOException");
-            result = true;
+            Log.i("NetworkTask", "doInBackground: IOException");
         } catch (Exception e) {
             e.printStackTrace();
-            Log.i("AsyncTask", "doInBackground: Exception");
-            result = true;
-        } finally {
-            try {
-                nis.close();
-                nos.close();
-                nsocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            Log.i("AsyncTask", "doInBackground: Finished");
+            Log.i("NetworkTask", "doInBackground: Exception");
         }
+        Log.i("NetworkTask", "doInBackground: Finished");
         return result;
     }
 
-    public void addData(final String name, final String value){
-        try {
-            jsonSend.put(name, value);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void SendDataToNetwork() {
-        if (nsocket.isConnected()) {
-            Log.i("AsyncTask","SendDataToNetwork: Writing received message to socket");
-            new Thread(() -> {
-                try {
-                    OutputStreamWriter out = new OutputStreamWriter(nos, StandardCharsets.UTF_8);
-                    Log.i("AsyncTask","SendDataToNetwork: Trying to send: " + jsonSend.toString().getBytes().length+jsonSend.toString());
-                    out.write(jsonSend.toString().getBytes().length+"\n"+jsonSend.toString());
-                    out.flush();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i("AsyncTask","SendDataToNetwork: Message send failed. Caught an exception");
-                }
-            }).start();
-        }
-        else Log.i( "AsyncTask","SendDataToNetwork: Cannot send message. Socket is closed");
-    }
-
-    @Override
-    protected void onProgressUpdate(byte[]... values) {
-        if (values.length > 0) {
-            Log.i("AsyncTask", "onProgressUpdate: " + values[0].length + " bytes received.");
-        }
-    }
     @Override
     protected void onCancelled() {
-        Log.i("AsyncTask", "Cancelled.");
+        Log.i("NetworkTask", "Cancelled.");
     }
     @Override
     protected void onPostExecute(Boolean result) {
         if (result) {
-            Log.i("AsyncTask", "onPostExecute: Completed with an Error.");
+            Log.i("NetworkTask", "onPostExecute: Completed with an Error.");
         } else {
-            Log.i("AsyncTask", "onPostExecute: Completed.");
+            Log.i("NetworkTask", "onPostExecute: Completed.");
         }
     }
+
+
+    public boolean sendData(String name, String value) {
+        if (socket.isConnected()) {
+            Log.i("NetworkTask","SendDataToNetwork: Writing received message to socket");
+            new Thread(() -> {
+                try {
+                    jsonSend.put(name, value);
+                    OutputStreamWriter out = new OutputStreamWriter(nos, StandardCharsets.UTF_8);
+                    Log.i("NetworkTask","SendDataToNetwork: Trying to send: " + jsonSend.toString().getBytes().length+jsonSend.toString());
+                    out.write(jsonSend.toString().getBytes().length+"\n"+jsonSend.toString());
+                    out.flush();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                    Log.i("NetworkTask","SendDataToNetwork: Message send failed. Caught an exception");
+                }
+            }).start();
+            return true;
+        }
+        Log.i( "NetworkTask","SendDataToNetwork: Cannot send message. Socket is closed");
+        return false;
+    }
+
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public JSONObject receiveData(){
+        new Thread(() -> {
+            if( socket.isConnected() )
+                try {
+
+                    byte[] bytes = new byte[1];
+                    StringBuilder data = new StringBuilder();
+                    // inserisco in data la dimensione dei dati da ricevere
+                    nis.read(bytes, 0, 1);
+                    String buffer = new String(bytes);
+                    while(! buffer.equals("\n")){
+                        data.append(buffer);
+                        nis.read(bytes, 0, 1);
+                        buffer = new String(bytes);
+                    }
+
+                    int dim = Integer.parseInt(data.toString());
+                    bytes = new byte[dim];
+                    nis.read(bytes, 0, dim);
+                    buffer = new String(bytes);
+                    Log.i("NetworkTask", "doInBackground: Received : " + data);
+
+                    jsonRecv = new JSONObject(buffer);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.i("NetworkTask", "receiveData: IOException");
+                } catch (JSONException e){
+                    e.printStackTrace();
+                    Log.i("NetworkTask", "receiveData : json format not accepted ");
+                }
+            synchronized (this) {
+                notify();
+            }
+        }).start();
+        try {
+            synchronized (this){
+                wait();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return jsonRecv;
+    }
+
+    /*private void analyzeReceivedData(){
+        try {
+            if( jsonRecv.get("sound").equals("on") )
+                mp.start();
+            else mp.pause();
+            if ( jsonRecv.get("MAX_EYELID") != null )
+                return;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.i("NetworkTask", "analyzeReceivedData : json format not accepted ");
+        }
+    }*/
 }

@@ -1,6 +1,7 @@
 package com.example.kmapp;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -39,8 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
         loadUsers();
 
-        ((MyApplication) this.getApplication()).setMediaPlayer();
-        ((MyApplication) this.getApplication()).setNetworkTask();
+        ((MyApplication) this.getApplication())
+                .setNetworkTask(MediaPlayer.create(this, R.raw.alarm_sleeping));
 
         new_account.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -70,12 +71,9 @@ public class MainActivity extends AppCompatActivity {
                                                 image);
         gridView.setAdapter(adapter);
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getApplicationContext(),"Switch to " + users[position].getName(), Toast.LENGTH_SHORT).show();
-                openAccountPage(users[position].getName());
-            }
+        gridView.setOnItemClickListener((parent, view, position, id) -> {
+            Toast.makeText(getApplicationContext(),"Switch to " + users[position].getName(), Toast.LENGTH_SHORT).show();
+            openAccountPage(users[position].getName());
         });
     }
 

@@ -30,11 +30,7 @@ public class MyApplication extends Application {
         this.databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
     }
 
-    public void setMediaPlayer(){
-        this.mp = MediaPlayer.create(this, R.raw.alarm_sleeping);
-    }
-
-    public void setNetworkTask(){
+    public void setNetworkTask(MediaPlayer mp){
         this.networktask = new NetworkTask(mp);
         this.networktask.execute();
     }

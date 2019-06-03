@@ -1,6 +1,7 @@
 package com.example.kmapp;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,45 +25,80 @@ public class Account extends AppCompatActivity {
 
     private ImageButton back_button;
     private Button conv_button;
+    private Button detect_button;
+    private Button stop_button;
     private TextView textView;
     private FirebaseDatabase firebase;
     private DatabaseReference db_user;
     private NetworkTask networktask;
     private DatabaseAccess databaseAccess;
+    private User user;
 
     private int PERMISSION_CODE = 1;
 
+    @SuppressLint("DefaultLocale")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_account );
 
         networktask = ((MyApplication) this.getApplication()).getNetworktask();
-        networktask.addData( "start_server", "true" );
-        networktask.SendDataToNetwork();
 
         Intent intent = getIntent();
         String userName = Objects.requireNonNull(intent.getExtras()).getString( "USERNAME");
+        databaseAccess = ((MyApplication) this.getApplication()).getDatabaseAccess();
+        user = databaseAccess.getUser(userName);
 
         conv_button = findViewById(R.id.conversation_button);
         back_button = findViewById(R.id.back_button);
         textView = findViewById( R.id.textView3 );
+        detect_button = findViewById( R.id.button2);
+        stop_button = findViewById( R.id.button3);
 
         back_button.setOnClickListener(v -> openMainPage());
 
-        conv_button.setOnClickListener(v -> openConversationActivity() );
+        conv_button.setOnClickListener(v -> {
+            if(! user.is_configured()){
+                openInitialConfig();
+            }else openConversationActivity();
+        });
 
+        detect_button.setOnClickListener(v -> {
+            if(! user.is_configured()){
+                Toast.makeText( this, "Set Configuration first", Toast.LENGTH_SHORT ).show();
+                return;
+            }
+            detect_button.setEnabled(false);
+            stop_button.setEnabled(true);
+            networktask.sendData( "start_server", "true" );
+            Toast.makeText( this, "Starting detecting", Toast.LENGTH_SHORT ).show();
+        } );
+        stop_button.setOnClickListener(v -> {
+            if( !detect_button.isEnabled() ) {
+                networktask.sendData("start_server", "false");
+                stop_button.setEnabled(false);
+                detect_button.setEnabled(true);
+            }else Toast.makeText( this, "No detection is running!", Toast.LENGTH_SHORT ).show();
+        });
+        stop_button.setEnabled(false);
 
-        databaseAccess = ((MyApplication) this.getApplication()).getDatabaseAccess();
-        User user = databaseAccess.getUser(userName);
-        textView.setText(String.format("Attivato account di %s\nPreferenze = %s",
+        textView.setText(String.format("Attivato account di %s\nPreferenze = %s\nMAX EYELID = %.2f\nMIN EYELID = %.2f\nMAX PRESSURE = %d",
                                         user.getName(),
-                                        user.getPreferences()));
+                                        user.getPreferences(),
+                                        user.getMAX_EYELID(),
+                                        user.getMIN_EYELID(),
+                                        user.getMAX_PRESSURE()));
 
         firebase = FirebaseDatabase.getInstance();
         String buffer = databaseAccess.getPreferences(userName);
         db_user = firebase.getReference("userInfo");
         db_user.child("prefInfo").setValue(buffer);
+    }
+
+    private void openInitialConfig() {
+        Intent initConf = new Intent( this, InitialConfiguration.class );
+        initConf.putExtra( "USERNAME", user.getName() );
+        startActivity( initConf );
     }
 
     protected void openConversationActivity(){
@@ -73,8 +109,7 @@ public class Account extends AppCompatActivity {
             return;
         }
 
-        networktask.addData( "start_server", "false" );
-        networktask.SendDataToNetwork();
+        networktask.sendData( "start_server", "false" );
         Intent conv = new Intent( this, ConversationActivity.class );
         startActivity( conv );
         this.finish();
@@ -119,15 +154,12 @@ public class Account extends AppCompatActivity {
     }
 
     private void openMainPage(){
-        networktask.addData( "start_server", "false" );
-        networktask.SendDataToNetwork();
+        networktask.sendData( "start_server", "false" );
         this.onBackPressed();
     }
 
     @Override
     protected void onResume(){
         super.onResume();
-        networktask.addData( "start_server", "true" );
-        networktask.SendDataToNetwork();
     }
 }

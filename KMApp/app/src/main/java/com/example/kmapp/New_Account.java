@@ -57,7 +57,7 @@ public class New_Account extends AppCompatActivity {
         databaseAccess = ((MyApplication) this.getApplication()).getDatabaseAccess();
 
         mListView.setOnItemClickListener((parent, view, position, id) -> {
-            CheckBox objCheckbox = (CheckBox) view.findViewById(R.id.checkbox);
+            CheckBox objCheckbox = view.findViewById(R.id.checkbox);
             Categories cat = categories.get( position );
             if(cat.isChecked()) {
                 cat.setChecked(false);
@@ -79,7 +79,10 @@ public class New_Account extends AppCompatActivity {
             else{
                 if(preferences.isEmpty())
                     preferences.addAll(categories.stream().map(Categories::getId).collect(Collectors.toList()));
-                databaseAccess.insertUser(new User(name, preferences));
+                if(! databaseAccess.insertUser(new User(name, preferences))) {
+                    Toast.makeText(getApplicationContext(), "User " + name + " already exist!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Toast.makeText(getApplicationContext(),"New Account saved",Toast.LENGTH_SHORT).show();
 
                 Intent initConf = new Intent( New_Account.this, InitialConfiguration.class );
@@ -89,12 +92,7 @@ public class New_Account extends AppCompatActivity {
             }
         });
 
-        back_button.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                New_Account.super.onBackPressed();
-            }
-        });
+        back_button.setOnClickListener(v -> New_Account.super.onBackPressed());
     }
 
     public ArrayList<Categories> readCategories(){

@@ -67,7 +67,9 @@ public class DatabaseAccess {
         return list;
     }
 
-    public void insertUser(User user){
+    public boolean insertUser(User user){
+        if(getUserNames().contains(user.getName()))
+            return false;
         open();
         db.execSQL( "insert into UserTable (Name, Preferences, MAX_EYELID, MIN_EYELID, MAX_PRESSURE) values " +
                 "('"+ user.getName() +"','"+
@@ -77,6 +79,7 @@ public class DatabaseAccess {
                       user.getMAX_PRESSURE()+
                 "')" );
         close();
+        return true;
     }
 
     public void deleteUser(String name){

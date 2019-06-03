@@ -87,4 +87,10 @@ public class User {
         this.MAX_PRESSURE = MAX_PRESSURE;
     }
 
+    public boolean is_configured(){
+        if(MAX_PRESSURE != -1 && MIN_EYELID != -1 && MAX_PRESSURE != -1)
+            return true;
+        return false;
+    }
+
 }

@@ -128,7 +128,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                 }, 2000);
             }
             else {
-                if (result.getAction().compareTo("choiceTriva") == 0) {
+                if (result.getAction().compareTo("choiceTrivia") == 0) {
                     conv_progress = conv_progress+1;
                     false_end=1;
                 }
@@ -252,7 +252,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     public String getCity() {
         return city;
     }
-    private class fetchMeteoData extends AsyncTask<Void,Void,Void> {
+    public class fetchMeteoData extends AsyncTask<Void,Void,Void> {
         String data ="";
         String dataParsed = "";
         @Override

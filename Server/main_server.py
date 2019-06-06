@@ -2,6 +2,7 @@ from threading import Thread, Condition
 from detect_blinks import run
 from status import Status
 from detect_pressure import arduino_function
+from wheel_vibration import *
 
 
 def detect():
@@ -19,6 +20,7 @@ def detect():
             print("\nThe driver is asleep,")
             print("The server is going to wake up him!")
             driver.sound_on()
+            logi_wheel.make_wheel_vibrate()
             print("## Sound stimolation started ##")
             print("## Vibration                 ##")
             print("Waiting for stopping sound stimolation and vibration...")
@@ -40,10 +42,13 @@ def detect():
             print("\nThe driver is awake,")
             print("The server is going to stop sound stimolation!")
             driver.sound_off()
+            logi_wheel.make_wheel_stop()
             print("## Sound stimolation stopped ##")
         main_event.release()
+        logi_wheel.make_wheel_close()
 
 
+logi_wheel = wheel()
 driver = Status()
 driver.start_listener()
 main_event = Condition()
@@ -52,8 +57,6 @@ while True:
     pressure_thread = Thread(name="detect_pressure", target=arduino_function, args=(driver,))
     eyes_thread = Thread(name="detect_blinks", target=run, args=(main_event, driver, pressure_thread, ))
     detect_thread = Thread(name="main", target=detect)
-
     driver.wait_for_connection()
-
     detect_thread.start()
     detect_thread.join()

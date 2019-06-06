@@ -19,7 +19,7 @@ class Status:
         self.previous_status = previous_status
         self.flag_pressure_busy = flag_pressure_busy
         self.connection = connection
-        self.socket = SocketServer()
+        self.socket = SocketServer(5000)
         self.event_connection = Condition()
 
     def set_eyelid(self, eyelid):

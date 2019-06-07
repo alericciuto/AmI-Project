@@ -22,7 +22,7 @@ public class NetworkTask extends AsyncTask<Void, byte[], Boolean> {
     private OutputStream nos; //Network Output Stream
     private JSONObject json;
 
-    private String HOST = "192.168.1.6";
+    private String HOST = "172.22.56.57";
     private int PORT = 8563;
 
 

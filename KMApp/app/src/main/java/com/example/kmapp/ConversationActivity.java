@@ -27,6 +27,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 
+import android.widget.ListView;
+import java.util.ArrayList;
+import java.util.List;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ArrayAdapter;
+
 import android.speech.tts.TextToSpeech;
 
 import android.widget.TextView;
@@ -46,12 +53,17 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     private int conv_progress = 0;
     private int false_end=0;
 
+    //BubbleChat
+    private ListView listView;
+    private List<ChatBubble> ChatBubbles;
+    private ArrayAdapter<ChatBubble> adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TTS = ((MyApplication) getApplicationContext()).getTTS();
         setContentView(R.layout.activity_conversation);
-        resultTextView = (TextView) findViewById(R.id.resultTextView);
+        //resultTextView = (TextView) findViewById(R.id.resultTextView);
         final AIConfiguration config = new AIConfiguration("b23a9af0092b49de8bb3976eb20f33ad",
                 AIConfiguration.SupportedLanguages.English,
                 AIConfiguration.RecognitionEngine.System);
@@ -59,6 +71,14 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         aiService.setListener(this);
         speech_error_limiter=0;
         activationCall();
+
+        //BubbleChat
+        ChatBubbles = new ArrayList<>();
+
+        listView = (ListView) findViewById(R.id.list_msg);
+        //set ListView adapter first
+        adapter = new MessageAdapter(this, R.layout.left_chat_bubble, ChatBubbles);
+        listView.setAdapter(adapter);
     }
 
     protected void activationCall(){
@@ -77,6 +97,10 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         speech_error_limiter = 0;
         false_end = 0;
         Result result = response.getResult();
+
+        ChatBubble ChatBubble = new ChatBubble(result.getResolvedQuery(), false);
+        ChatBubbles.add(ChatBubble);
+        adapter.notifyDataSetChanged();
 
         // Get parameters
         String parameterString = "";
@@ -146,7 +170,10 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                         sb.append("\n");
                     }
                     reply2 = "Query:" + result.getResolvedQuery() + "\n" + sb.toString();
-                    resultTextView.setText(reply2);
+                    //resultTextView.setText(reply2);
+                    ChatBubble = new ChatBubble(reply2, true);
+                    ChatBubbles.add(ChatBubble);
+                    adapter.notifyDataSetChanged();
                     reply = sb.toString();
                 }
 
@@ -160,7 +187,10 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         a.post(new Runnable() {
             @Override
             public void run() {
-                resultTextView.setText(reply);
+                //resultTextView.setText(reply);
+                ChatBubble ChatBubble = new ChatBubble(reply, true);
+                ChatBubbles.add(ChatBubble);
+                adapter.notifyDataSetChanged();
             }
         });
         a.postDelayed(new Runnable() {
@@ -187,7 +217,10 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         a.post(new Runnable() {
             @Override
             public void run() {
-                resultTextView.setText(reply);
+                //resultTextView.setText(reply);
+                ChatBubble ChatBubble = new ChatBubble(reply, true);
+                ChatBubbles.add(ChatBubble);
+                adapter.notifyDataSetChanged();
             }
         });
         a.postDelayed(new Runnable() {
@@ -222,7 +255,10 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
             a.post(new Runnable() {
                 @Override
                 public void run() {
-                    resultTextView.setText(reply);
+                    //resultTextView.setText(reply);
+                    ChatBubble ChatBubble = new ChatBubble(reply, true);
+                    ChatBubbles.add(ChatBubble);
+                    adapter.notifyDataSetChanged();
                 }
             });
             a.postDelayed(new Runnable() {

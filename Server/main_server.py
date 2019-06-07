@@ -46,9 +46,10 @@ def detect():
 
 driver = Status()
 driver.start_listener()
-main_event = Condition()
 
 while True:
+    main_event = Condition()
+
     pressure_thread = Thread(name="detect_pressure", target=arduino_function, args=(driver,))
     eyes_thread = Thread(name="detect_blinks", target=run, args=(main_event, driver, pressure_thread, ))
     detect_thread = Thread(name="main", target=detect)

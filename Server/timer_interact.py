@@ -62,3 +62,13 @@ def restart_time(event, driver, ear):
     event.notify()
     event.release()
 
+
+def stop_config(driver, face):
+    if driver.get_MAX_EYELID() == -1:
+        driver.set_MAX_EYELID(float(face.MAX_EYELID / face.nmax))
+        driver.send_MAX_EYELID()
+    else:
+        driver.set_MIN_EYELID(float(face.MIN_EYELID / face.nmin))
+        driver.send_MIN_EYELID()
+
+

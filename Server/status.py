@@ -1,26 +1,24 @@
 from threading import Condition
 from socket_server import SocketServer
 from threading import Thread
-
-# verify the max pressure
-MAX_PRESSURE = 2000
-# eyelid depends on the user
-MAX_EYELID = 0.38
-MIN_EYELID = 0.09
+from initial_configuration import run
 
 
 class Status:
 
     # finchè sensore non arriva -> valore di default
-    def __init__(self, eyelid=-1, pressure=2 * MAX_PRESSURE / 3, previous_status="awake",
+    def __init__(self, eyelid=-1, pressure=False, previous_status="awake",
                  flag_pressure_busy=False, connection=None):
         self.eyelid = eyelid
         self.pressure = pressure
         self.previous_status = previous_status
         self.flag_pressure_busy = flag_pressure_busy
         self.connection = connection
-        self.socket = SocketServer()
+        self.socket = SocketServer(port=8563)
         self.event_connection = Condition()
+        self.MAX_EYELID = -1
+        self.MIN_EYELID = -1
+        self.MAX_PRESSURE = -1
 
     def set_eyelid(self, eyelid):
         self.eyelid = eyelid
@@ -34,23 +32,39 @@ class Status:
         self.pressure = pressure
 
     def get_pressure(self):
-        if self.pressure == -1:
-            return None
         return self.pressure
+
+    def set_MAX_EYELID(self, MAX_EYELID):
+        self.MAX_EYELID = MAX_EYELID
+
+    def set_MIN_EYELID(self, MIN_EYELID):
+        self.MIN_EYELID = MIN_EYELID
+
+    def get_MAX_EYELID(self):
+        return self.MAX_EYELID
+
+    def get_MIN_EYELID(self):
+        return self.MIN_EYELID
+
+    def send_MAX_EYELID(self):
+        self.socket.send({"MAX_EYELID": str(self.MAX_EYELID)})
+
+    def send_MIN_EYELID(self):
+        self.socket.send({"MIN_EYELID": str(self.MIN_EYELID)})
+
+    def send_MAX_PRESSURE(self):
+        self.socket.send({"MAX_PRESSURE": str(self.MAX_PRESSURE)})
 
     def is_awake(self):
         while self.flag_pressure_busy:
             pass
-        if ((self.eyelid - MIN_EYELID) / (MAX_EYELID - MIN_EYELID)) * 80 + (self.pressure / MAX_PRESSURE) * 20 > 60:
+        if ((self.eyelid - self.MIN_EYELID) / (self.MAX_EYELID - self.MIN_EYELID)) * 100 > 60 : # and self.pressure is True
             return True
         else:
             return False
 
     def is_half_asleep(self):
-        while self.flag_pressure_busy:
-            pass
-        if 50 <= ((self.eyelid - MIN_EYELID) / (MAX_EYELID - MIN_EYELID)) * 80 + (
-                self.pressure / MAX_PRESSURE) * 20 <= 60:
+        if 60 >= ((self.eyelid - self.MIN_EYELID) / (self.MAX_EYELID - self.MIN_EYELID)) * 100 >= 50:
             return True
         else:
             return False
@@ -58,8 +72,7 @@ class Status:
     def is_asleep(self):
         while self.flag_pressure_busy:
             pass
-        if ((self.eyelid - MIN_EYELID) / (MAX_EYELID - MIN_EYELID)) * 80 + (self.pressure / MAX_PRESSURE) * 20 < 50 or \
-                (self.pressure / MAX_PRESSURE) * 100 < 20:
+        if ((self.eyelid - self.MIN_EYELID) / (self.MAX_EYELID - self.MIN_EYELID)) * 100 < 50: #  and self.pressure is False
             return True
         else:
             return False
@@ -113,22 +126,39 @@ class Status:
     def sound_off(self):
         self.socket.send({"sound": "off"})
 
+    def beep(self):
+        self.socket.send({"beep": "go"})
+
     def receive_data(self):
-        self.socket.accept()
         while True:
-            print("\n>> Waiting for a client...")
+            print("\n>> Waiting for client...")
+            self.socket.accept()
             while True:
+                print("\n>> Waiting for client request...")
                 data = self.socket.recv()
-                if data["start_server"] is not None and data["start_server"] == "true":
-                    self.event_connection.acquire()
+                print("\n>> Request received: ")
+                print(data)
+                keys = data.keys()
+                if "start_server" in keys and data["start_server"] == "true":
                     self.connect()
-                    self.event_connection.notify()
-                    self.event_connection.release()
                     print("\n>> Client Connected!\n")
-                elif data["start_server"] == "false":
+                elif "start_server" in keys and data["start_server"] == "false":
                     self.disconnect()
+                    self.set_MAX_EYELID(-1)
+                    self.set_MIN_EYELID(-1)
                     print("\n>> Client disconnected!")
                     break
+                elif "start_initial_configuration" in keys and data["start_initial_configuration"] == "true":
+                    print("\n>> New client, starting configuration")
+                    run(self)
+                    self.set_MAX_EYELID(-1)
+                    self.set_MIN_EYELID(-1)
+                    print("\n>> Configuration completed!")
+                    break
+                elif "MAX_EYELID" in keys:
+                    self.set_MAX_EYELID(float(data["MAX_EYELID"]))
+                elif "MIN_EYELID" in keys:
+                    self.set_MIN_EYELID(float(data["MIN_EYELID"]))
 
     def start_listener(self):
         receiver = Thread(target=self.receive_data, name="receiver")

@@ -17,5 +17,8 @@ def arduino_function(driver):
         x = int(arduino.readline().decode('utf-8').strip())
         # it reads bytestream, convert it to utf-8 and then remove '/b'
         driver.flag_busy()
-        driver.set_pressure(x)
+        if x > 500:
+            driver.set_pressure(True)
+        else:
+            driver.set_pressure(False)
         driver.flag_unbusy()

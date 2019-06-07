@@ -126,7 +126,7 @@ public class DatabaseAccess {
     }
 
     public List<Integer> setPreferences(String preferences){
-        return Arrays.stream(c.getString(1).split(" "))
+        return Arrays.stream(preferences.split(" "))
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
     }

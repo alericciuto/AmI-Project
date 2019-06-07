@@ -20,7 +20,7 @@ class SocketServer:
 
     def __init__(self, port):
         # self.host = socket.gethostbyname(socket.gethostname())
-        self.host = '192.168.1.6'
+        self.host = '172.22.56.57'
         self.port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
@@ -90,4 +90,3 @@ def _recv(socket):
     except (TypeError, ValueError) as e:
         raise Exception('>> Data received was not in JSON format '.format(e))
     return deserialized
-

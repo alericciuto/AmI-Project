@@ -58,7 +58,7 @@ class Status:
     def is_awake(self):
         while self.flag_pressure_busy:
             pass
-        if ((self.eyelid - self.MIN_EYELID) / (self.MAX_EYELID - self.MIN_EYELID)) * 100 > 60 : # and self.pressure is True
+        if ((self.eyelid - self.MIN_EYELID) / (self.MAX_EYELID - self.MIN_EYELID)) * 100 > 60 and self.pressure is True:
             return True
         else:
             return False
@@ -72,7 +72,8 @@ class Status:
     def is_asleep(self):
         while self.flag_pressure_busy:
             pass
-        if ((self.eyelid - self.MIN_EYELID) / (self.MAX_EYELID - self.MIN_EYELID)) * 100 < 50: #  and self.pressure is False
+        if ((self.eyelid - self.MIN_EYELID) / (
+                self.MAX_EYELID - self.MIN_EYELID)) * 100 < 50 and self.pressure is False:
             return True
         else:
             return False

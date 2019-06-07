@@ -25,12 +25,7 @@ public class Delete_Account extends AppCompatActivity {
         back_button = findViewById( R.id.back_button );
         gridView=findViewById(R.id.delete_grid);
 
-        back_button.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                openMainPage();
-            }
-        });
+        back_button.setOnClickListener(v -> openMainPage());
 
         databaseAccess = ((MyApplication) this.getApplication()).getDatabaseAccess();
 
@@ -43,7 +38,7 @@ public class Delete_Account extends AppCompatActivity {
             builder.setMessage("Delete " + users[position] + "?");
 
             builder.setPositiveButton("YES", (dialog, which) -> {
-                Toast.makeText(getApplicationContext(),"Deleting "+users[position]+"...",Toast.LENGTH_SHORT).show();
+                runOnUiThread(() -> Toast.makeText(getApplicationContext(),"Deleting "+users[position]+"...",Toast.LENGTH_SHORT).show());
                 databaseAccess.deleteUser(users[position]);
                 loadUsers();
                 dialog.dismiss();
@@ -58,8 +53,6 @@ public class Delete_Account extends AppCompatActivity {
     }
 
     private void openMainPage(){
-        //Intent refresh = new Intent(this, MainActivity.class);
-        //startActivity(refresh);
         this.finish();
     }
 

@@ -88,7 +88,7 @@ public class User {
     }
 
     public boolean is_configured(){
-        if(MAX_PRESSURE != -1 && MIN_EYELID != -1 && MAX_PRESSURE != -1)
+        if(MAX_EYELID != -1 && MIN_EYELID != -1)
             return true;
         return false;
     }

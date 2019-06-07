@@ -43,62 +43,80 @@ public class InitialConfiguration extends AppCompatActivity {
         user = databaseAccess.getUser(userName);
 
         start_button.setOnClickListener(v -> {
-            try {
-
-                start_button.setEnabled(false);
-                back_button.setEnabled(false);
-
-                text.setTextColor(Color.RED);
-                text.setText("You'll hear two beep now.\nDo what I tell you between them");
-
-                if(! networktask.sendData("start_initial_configuration", "true")) {
-                    noConnection();
-                    return;
-                }
-
-                text.setText("Keep your eyes open");
-
-                json = networktask.receiveData();
-                if(json.get("beep").equals("go"))   mp.start();
-                json = networktask.receiveData();
-                user.setMAX_EYELID(Float.parseFloat( (String) json.get("MAX_EYELID")));
-                mp.start();
-
-                text.setText("Keep your eyes close");
-
-                json = networktask.receiveData();
-                if(json.get("beep").equals("go"))   mp.start();
-                json = networktask.receiveData();
-                user.setMIN_EYELID(Float.parseFloat((String) json.get("MIN_EYELID")));
-                mp.start();
-
-                text.setText("Finally, tighten the steering wheel");
-
-                /*json = networktask.receiveData();
-                if(json.get("beep").equals("go"))   mp.start();
-                json = networktask.receiveData();
-                user.setMAX_PRESSURE(Integer.parseInt((String) json.get("MAX_PRESSURE")));
-                mp.start();*/
-
-                databaseAccess.insertUser(user);
-                text.setText("Thank you, now I'm ready to start!");
-
-                start_button.setEnabled(true);
-                back_button.setEnabled(true);
-
-                this.finish();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            startConfig();
         });
 
         back_button.setOnClickListener( v -> super.onBackPressed());
     }
 
     private void noConnection(){
-        Toast.makeText(getApplicationContext(), "No connection with the Server!", Toast.LENGTH_SHORT).show();
-        start_button.setEnabled(true);
-        back_button.setEnabled(true);
+        runOnUiThread(() ->  Toast.makeText(getApplicationContext(), "No connection with the Server!", Toast.LENGTH_SHORT).show());
+        runOnUiThread(() -> start_button.setEnabled(true));
+        runOnUiThread(() -> back_button.setEnabled(true));
+    }
 
+    private void startConfig(){
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    synchronized (this) {
+                        try{
+                            runOnUiThread(() -> start_button.setEnabled(false));
+                            runOnUiThread(() -> back_button.setEnabled(false));
+
+                            if(! networktask.isConnected()) {
+                                noConnection();
+                                return;
+                            }
+
+                            runOnUiThread(() -> text.setTextColor(Color.RED));
+                            runOnUiThread(() -> text.setText("You'll hear two beep now.\nDo what I tell you between them"));
+
+                            wait(2000);
+
+                            networktask.sendData("start_initial_configuration", "true");
+
+                            runOnUiThread(() -> text.setText("Keep your eyes open"));
+
+                            json = networktask.receiveData();
+                            if(json.get("beep").equals("go")) {
+                                mp.start();
+                                runOnUiThread(() -> Toast.makeText( InitialConfiguration.this, "BEEP1", Toast.LENGTH_SHORT ).show());
+                            }
+                            json = networktask.receiveData();
+                            user.setMAX_EYELID(Float.parseFloat( (String) json.get("MAX_EYELID")));
+                            mp.start();
+                            runOnUiThread(() -> Toast.makeText( InitialConfiguration.this, "BEEP2", Toast.LENGTH_SHORT ).show());
+
+                            runOnUiThread(() -> text.setText("Keep your eyes close"));
+                            json = networktask.receiveData();
+                            if(json.get("beep").equals("go")) {
+                                mp.start();
+                                runOnUiThread(() -> Toast.makeText( InitialConfiguration.this, "BEEP3", Toast.LENGTH_SHORT ).show());
+                            }
+                            json = networktask.receiveData();
+                            user.setMIN_EYELID(Float.parseFloat((String) json.get("MIN_EYELID")));
+                            mp.start();
+                            runOnUiThread(() -> Toast.makeText( InitialConfiguration.this, "BEEP4", Toast.LENGTH_SHORT ).show());
+
+                            runOnUiThread(() -> text.setText("Thank you, now I'm ready to start!"));
+                            databaseAccess.updateUser(user);
+
+                            runOnUiThread(() -> back_button.setEnabled(true));
+
+                            wait(3000);
+                            runOnUiThread(() -> start_button.setEnabled(true));
+                            runOnUiThread(InitialConfiguration.this::finish);
+
+                        } catch (JSONException e){
+                            e.printStackTrace();
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.start();
     }
 }

@@ -1,6 +1,5 @@
 package com.example.kmapp;
 
-import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -21,17 +20,10 @@ public class NetworkTask extends AsyncTask<Void, byte[], Boolean> {
     private Socket socket; //Network Socket
     private InputStream nis; //Network Input Stream
     private OutputStream nos; //Network Output Stream
-    private JSONObject jsonSend = new JSONObject();
-    private JSONObject jsonRecv = new JSONObject();
-    private MediaPlayer mp;
+    private JSONObject json;
 
-    private String HOST = "192.168.43.58";
-    private int PORT = 5000;
-
-    public NetworkTask(MediaPlayer mp){
-        this.mp = mp;
-        this.mp.setLooping(true);
-    }
+    private String HOST = "192.168.1.6";
+    private int PORT = 8563;
 
 
     @Override
@@ -64,6 +56,53 @@ public class NetworkTask extends AsyncTask<Void, byte[], Boolean> {
         return result;
     }
 
+    protected void connect(){
+        new Thread( () -> {
+            try {
+                Log.i("NetworkTask", "doInBackground: Creating socket");
+                SocketAddress sockaddr = new InetSocketAddress( HOST, PORT );
+                socket = new Socket();
+                socket.connect(sockaddr, 0); //10 second connection timeout
+                if (socket.isConnected()) {
+                    nis = socket.getInputStream();
+                    nos = socket.getOutputStream();
+                    Log.i("NetworkTask", "doInBackground: Socket created, streams assigned");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.i("NetworkTask", "doInBackground: IOException");
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.i("NetworkTask", "doInBackground: Exception");
+            }
+            Log.i("NetworkTask", "doInBackground: Finished");
+            synchronized (this){
+                notify();
+            }
+        }).start();
+        synchronized (this){
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    protected void disconnect(){
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean isConnected(){
+        if(socket != null && socket.isConnected())
+            return true;
+        else return false;
+    }
+
     @Override
     protected void onCancelled() {
         Log.i("NetworkTask", "Cancelled.");
@@ -79,60 +118,77 @@ public class NetworkTask extends AsyncTask<Void, byte[], Boolean> {
 
 
     public boolean sendData(String name, String value) {
-        if (socket.isConnected()) {
-            Log.i("NetworkTask","SendDataToNetwork: Writing received message to socket");
-            new Thread(() -> {
-                try {
-                    jsonSend.put(name, value);
-                    OutputStreamWriter out = new OutputStreamWriter(nos, StandardCharsets.UTF_8);
-                    Log.i("NetworkTask","SendDataToNetwork: Trying to send: " + jsonSend.toString().getBytes().length+jsonSend.toString());
-                    out.write(jsonSend.toString().getBytes().length+"\n"+jsonSend.toString());
-                    out.flush();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i("NetworkTask","SendDataToNetwork: Message send failed. Caught an exception");
-                }
-            }).start();
-            return true;
+        //this.connect();
+        new Thread(() -> {
+            if (! socket.isConnected())
+                this.connect();
+            try {
+                json = new JSONObject();
+                json.put(name, value);
+                OutputStreamWriter out = new OutputStreamWriter(nos, StandardCharsets.UTF_8);
+                Log.i("NetworkTask","SendDataToNetwork: Trying to send: " + json.toString().getBytes().length + json.toString());
+                out.write(json.toString().getBytes().length+"\n"+json.toString());
+                out.flush();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }catch (Exception e) {
+                e.printStackTrace();
+                Log.i("NetworkTask","SendDataToNetwork: Message send failed. Caught an exception");
+            }
+            synchronized (this){
+                notify();
+            }
+        }).start();
+        //this.disconnect();
+        try {
+            synchronized (this){
+                wait();
+                Log.i( "NetworkTask","SendDataToNetwork: Message sent");
+                return true;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Log.i( "NetworkTask","SendDataToNetwork: Cannot send message. Socket is closed");
+            return false;
         }
-        Log.i( "NetworkTask","SendDataToNetwork: Cannot send message. Socket is closed");
-        return false;
     }
 
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public JSONObject receiveData(){
         new Thread(() -> {
-            if( socket.isConnected() )
-                try {
+            //this.connect();
+            if( !socket.isConnected())
+                this.connect();
+            try {
 
-                    byte[] bytes = new byte[1];
-                    StringBuilder data = new StringBuilder();
-                    // inserisco in data la dimensione dei dati da ricevere
+                byte[] bytes = new byte[1];
+                StringBuilder data = new StringBuilder();
+                // inserisco in data la dimensione dei dati da ricevere
+                nis.read(bytes, 0, 1);
+                String buffer = new String(bytes);
+                while (!buffer.equals("\n")) {
+                    data.append(buffer);
                     nis.read(bytes, 0, 1);
-                    String buffer = new String(bytes);
-                    while(! buffer.equals("\n")){
-                        data.append(buffer);
-                        nis.read(bytes, 0, 1);
-                        buffer = new String(bytes);
-                    }
-
-                    int dim = Integer.parseInt(data.toString());
-                    bytes = new byte[dim];
-                    nis.read(bytes, 0, dim);
                     buffer = new String(bytes);
-                    Log.i("NetworkTask", "doInBackground: Received : " + data);
-
-                    jsonRecv = new JSONObject(buffer);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.i("NetworkTask", "receiveData: IOException");
-                } catch (JSONException e){
-                    e.printStackTrace();
-                    Log.i("NetworkTask", "receiveData : json format not accepted ");
                 }
+
+                int dim = Integer.parseInt(data.toString());
+                bytes = new byte[dim];
+                nis.read(bytes, 0, dim);
+                buffer = new String(bytes);
+
+                json = new JSONObject(buffer);
+                Log.i("NetworkTask", "doInBackground: Received : " + data + " " + json);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.i("NetworkTask", "receiveData: IOException");
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.i("NetworkTask", "receiveData : json format not accepted ");
+            }
+            //this.disconnect();
             synchronized (this) {
                 notify();
             }
@@ -144,19 +200,6 @@ public class NetworkTask extends AsyncTask<Void, byte[], Boolean> {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return jsonRecv;
+        return json;
     }
-
-    /*private void analyzeReceivedData(){
-        try {
-            if( jsonRecv.get("sound").equals("on") )
-                mp.start();
-            else mp.pause();
-            if ( jsonRecv.get("MAX_EYELID") != null )
-                return;
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.i("NetworkTask", "analyzeReceivedData : json format not accepted ");
-        }
-    }*/
 }

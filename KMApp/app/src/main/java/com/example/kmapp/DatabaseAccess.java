@@ -51,12 +51,7 @@ public class DatabaseAccess {
         while(c.moveToNext()){
             User user = new User();
             user.setName(c.getString(0));
-            System.out.println(user.getName());
-            System.out.println(c.getString(1));
-            user.setPreferences(Arrays.stream(c.getString(1)
-                                    .split(" ")
-                                ).map(Integer::parseInt)
-                                .collect(Collectors.toList()));
+            user.setPreferences(setPreferences(c.getString(1)));
             user.setMAX_EYELID(Float.parseFloat(c.getString(2)));
             user.setMIN_EYELID(Float.parseFloat(c.getString(3)));
             user.setMAX_PRESSURE(Integer.parseInt(c.getString(4)));
@@ -73,13 +68,18 @@ public class DatabaseAccess {
         open();
         db.execSQL( "insert into UserTable (Name, Preferences, MAX_EYELID, MIN_EYELID, MAX_PRESSURE) values " +
                 "('"+ user.getName() +"','"+
-                      user.getPreferences().stream().map(String::valueOf).collect(Collectors.joining(" "))+"','"+
-                      user.getMAX_EYELID()+"','"+
-                      user.getMIN_EYELID()+"','"+
-                      user.getMAX_PRESSURE()+
+                getPreferences(user.getPreferences())+"','"+
+                user.getMAX_EYELID()+"','"+
+                user.getMIN_EYELID()+"','"+
+                user.getMAX_PRESSURE()+
                 "')" );
         close();
         return true;
+    }
+
+    public void updateUser(User user){
+        deleteUser(user.getName());
+        insertUser(user);
     }
 
     public void deleteUser(String name){
@@ -94,11 +94,7 @@ public class DatabaseAccess {
         c=db.rawQuery("select * from UserTable where Name = ?", new String[]{name});
         if(c.moveToFirst()){
             user.setName(c.getString(0));
-            user.setPreferences(Arrays.stream(c.getString(1)
-                                            .split(" ")
-                                    ).map(Integer::parseInt)
-                                    .collect(Collectors.toList())
-                                );
+            user.setPreferences(setPreferences(c.getString(1)));
             user.setMAX_EYELID(Float.parseFloat(c.getString(2)));
             user.setMIN_EYELID(Float.parseFloat(c.getString(3)));
             user.setMAX_PRESSURE(Integer.parseInt(c.getString(4)));
@@ -121,5 +117,17 @@ public class DatabaseAccess {
         return getUser(name).getPreferences().stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(" "));
+    }
+
+    public String getPreferences(List<Integer> preferences){
+        return preferences.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(" "));
+    }
+
+    public List<Integer> setPreferences(String preferences){
+        return Arrays.stream(preferences.split(" "))
+                .map(Integer::parseInt)
+                .collect(Collectors.toList());
     }
 }

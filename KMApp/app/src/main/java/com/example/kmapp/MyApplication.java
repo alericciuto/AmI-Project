@@ -1,16 +1,12 @@
 package com.example.kmapp;
 
 import android.app.Application;
-import android.media.MediaPlayer;
 import android.speech.tts.TextToSpeech;
-import android.widget.Toast;
 
-import java.util.Locale;
 
 public class MyApplication extends Application {
 
     private DatabaseAccess databaseAccess;
-    private MediaPlayer mp;
     private NetworkTask networktask;
 
     private TextToSpeech tts;
@@ -19,8 +15,8 @@ public class MyApplication extends Application {
         this.databaseAccess = DatabaseAccess.getInstance(getApplicationContext());
     }
 
-    public void setNetworkTask(MediaPlayer mp){
-        this.networktask = new NetworkTask(mp);
+    public void setNetworkTask(){
+        this.networktask = new NetworkTask();
         this.networktask.execute();
     }
 
@@ -40,3 +36,4 @@ public class MyApplication extends Application {
         this.tts = tts;
     }
 }
+

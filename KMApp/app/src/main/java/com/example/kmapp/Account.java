@@ -2,9 +2,9 @@ package com.example.kmapp;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -18,6 +18,9 @@ import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Objects;
 
@@ -33,6 +36,8 @@ public class Account extends AppCompatActivity {
     private NetworkTask networktask;
     private DatabaseAccess databaseAccess;
     private User user;
+    private String userName;
+    private MediaPlayer mp;
 
     private int PERMISSION_CODE = 1;
 
@@ -42,12 +47,10 @@ public class Account extends AppCompatActivity {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_account );
 
+        ((MyApplication) this.getApplication()).setNetworkTask();
         networktask = ((MyApplication) this.getApplication()).getNetworktask();
-
-        Intent intent = getIntent();
-        String userName = Objects.requireNonNull(intent.getExtras()).getString( "USERNAME");
-        databaseAccess = ((MyApplication) this.getApplication()).getDatabaseAccess();
-        user = databaseAccess.getUser(userName);
+        mp = MediaPlayer.create(getApplicationContext(), R.raw.alarm_sleeping);
+        mp.setLooping(true);
 
         conv_button = findViewById(R.id.conversation_button);
         back_button = findViewById(R.id.back_button);
@@ -55,40 +58,47 @@ public class Account extends AppCompatActivity {
         detect_button = findViewById( R.id.button2);
         stop_button = findViewById( R.id.button3);
 
+        Intent intent = getIntent();
+        userName = Objects.requireNonNull(intent.getExtras()).getString( "USERNAME");
+        databaseAccess = ((MyApplication) this.getApplication()).getDatabaseAccess();
+        printUserInfo();
+
         back_button.setOnClickListener(v -> openMainPage());
 
         conv_button.setOnClickListener(v -> {
-//            if(! user.is_configured()){
-//                openInitialConfig();
-//            }else openConversationActivity();
-            openConversationActivity();
+            if(! user.is_configured())
+                openInitialConfig();
+            else openConversationActivity();
         });
 
         detect_button.setOnClickListener(v -> {
             if(! user.is_configured()){
-                Toast.makeText( this, "Set Configuration first", Toast.LENGTH_SHORT ).show();
+                runOnUiThread(() -> Toast.makeText( this, "Set Configuration first", Toast.LENGTH_SHORT ).show());
                 return;
             }
-            detect_button.setEnabled(false);
-            stop_button.setEnabled(true);
-            networktask.sendData( "start_server", "true" );
-            Toast.makeText( this, "Starting detecting", Toast.LENGTH_SHORT ).show();
+            if(networktask.isConnected()) {
+                runOnUiThread(() -> detect_button.setEnabled(false));
+                runOnUiThread(() -> stop_button.setEnabled(true));
+                networktask.sendData("MAX_EYELID", String.valueOf(user.getMAX_EYELID()));
+                networktask.sendData("MIN_EYELID", String.valueOf(user.getMIN_EYELID()));
+                networktask.sendData("start_server", "true");
+                runOnUiThread(() -> Toast.makeText(this, "Starting detecting", Toast.LENGTH_SHORT).show());
+                new Thread(this::detecting).start();
+            }else runOnUiThread(()-> Toast.makeText( this, "No connection with th Server!", Toast.LENGTH_SHORT ).show());
         } );
+
         stop_button.setOnClickListener(v -> {
             if( !detect_button.isEnabled() ) {
-                networktask.sendData("start_server", "false");
-                stop_button.setEnabled(false);
-                detect_button.setEnabled(true);
-            }else Toast.makeText( this, "No detection is running!", Toast.LENGTH_SHORT ).show();
+                if(mp.isPlaying())
+                    mp.stop();
+                runOnUiThread(() -> stop_button.setEnabled(false));
+                runOnUiThread(() -> detect_button.setEnabled(true));
+                openMainPage();
+            }else runOnUiThread(() -> Toast.makeText( this, "No detection is running!", Toast.LENGTH_SHORT ).show());
         });
+
         stop_button.setEnabled(false);
 
-        textView.setText(String.format("Attivato account di %s\nPreferenze = %s\nMAX EYELID = %.2f\nMIN EYELID = %.2f\nMAX PRESSURE = %d",
-                                        user.getName(),
-                                        user.getPreferences(),
-                                        user.getMAX_EYELID(),
-                                        user.getMIN_EYELID(),
-                                        user.getMAX_PRESSURE()));
 
         firebase = FirebaseDatabase.getInstance();
         String buffer = databaseAccess.getPreferences(userName);
@@ -109,12 +119,11 @@ public class Account extends AppCompatActivity {
         if(ContextCompat.checkSelfPermission( Account.this, Manifest.permission.RECORD_AUDIO ) == PackageManager.PERMISSION_DENIED) {
             return;
         }
-
-        networktask.sendData( "start_server", "false" );
+        if(networktask.isConnected())
+            networktask.sendData( "start_server", "false" );
         Intent conv = new Intent( this, ConversationActivity.class );
         startActivity( conv );
         this.finish();
-
     }
 
     private void RequestRecordPermission() {
@@ -123,21 +132,12 @@ public class Account extends AppCompatActivity {
             new AlertDialog.Builder( this )
                     .setTitle( "Permission" )
                     .setMessage( "This permission is needed to start the conversation." )
-                    .setPositiveButton( "Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ActivityCompat.requestPermissions( Account.this, new String[] {Manifest.permission.RECORD_AUDIO}, PERMISSION_CODE );
-                            dialog.dismiss();
-                        }
-                    } )
-                    .setNegativeButton( "Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    } )
+                    .setPositiveButton( "Ok", (dialog, which) -> {
+                        ActivityCompat.requestPermissions( Account.this, new String[] {Manifest.permission.RECORD_AUDIO}, PERMISSION_CODE );
+                        dialog.dismiss();
+                    })
+                    .setNegativeButton( "Cancel", (dialog, which) -> dialog.dismiss())
                     .create().show();
-
         } else {
             ActivityCompat.requestPermissions( this, new String[] {Manifest.permission.RECORD_AUDIO}, PERMISSION_CODE );
         }
@@ -155,12 +155,42 @@ public class Account extends AppCompatActivity {
     }
 
     private void openMainPage(){
-        networktask.sendData( "start_server", "false" );
+        if(networktask.isConnected())
+            networktask.sendData( "start_server", "false" );
         this.onBackPressed();
     }
 
     @Override
     protected void onResume(){
         super.onResume();
+        printUserInfo();
+    }
+
+    @SuppressLint("DefaultLocale")
+    private void printUserInfo(){
+        user = databaseAccess.getUser(userName);
+        textView.setText(String.format("Attivato account di %s\nPreferenze = %s\nMAX EYELID = %.2f\nMIN EYELID = %.2f",
+                user.getName(),
+                user.getPreferences(),
+                user.getMAX_EYELID(),
+                user.getMIN_EYELID())
+        );
+    }
+
+    private void detecting(){
+        // DA SCOMMENTARE QUANDO FINIAMO, SUONA DUE VOLTE PRIMA DI INIZIARE A PARLARE
+        // LEVARE IL TASTO STOP SENNO NON FUNZIONA
+//        for(int i =0; i <4 ; i++){
+//            try {
+//                JSONObject json = networktask.receiveData();
+//                if(json.get("sound").equals("on"))
+//                    mp.start();
+//                else if (json.get("sound").equals("off"))
+//                    mp.pause();
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        openConversationActivity();
     }
 }

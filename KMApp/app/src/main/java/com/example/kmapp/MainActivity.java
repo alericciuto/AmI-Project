@@ -1,8 +1,6 @@
 package com.example.kmapp;
 
 import android.content.Intent;
-import android.media.MediaPlayer;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
@@ -37,8 +35,6 @@ public class MainActivity extends AppCompatActivity {
         pb = findViewById(R.id.progress_bar);
         gridView=findViewById(R.id.query_grid);
 
-        databaseAccess=DatabaseAccess.getInstance(getApplicationContext());
-
         ((MyApplication) this.getApplication()).setDatabase();
         databaseAccess = ((MyApplication) this.getApplication()).getDatabaseAccess();
 
@@ -49,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
 
         //fill the list view with the task list
 
-        tts = ((MyApplication) MainActivity.this.getApplication()).getTTS();
         tts = new TextToSpeech(MainActivity.this, status -> {
             if (status != TextToSpeech.ERROR) {
                 tts.setLanguage( Locale.US);
@@ -68,10 +63,6 @@ public class MainActivity extends AppCompatActivity {
                 toast.show();
             }
         });
-
-
-        ((MyApplication) this.getApplication())
-                .setNetworkTask(MediaPlayer.create(this, R.raw.alarm_sleeping));
 
         new_account.setOnClickListener(new View.OnClickListener(){
             @Override

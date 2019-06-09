@@ -6,11 +6,35 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="windowActionBar">true</item>
+        <item name="windowNoTitle">false</item>
+        <item name="android:actionBarStyle">@style/FooBar</item>
+        <item name="actionBarStyle">@style/FooBar</item>
+    </style>
+
+    <style name="FooBar"
+        parent="Widget.AppCompat.Light.ActionBar">
+        <item name="android:icon">@mipmap/ic_launcher</item>
+        <item name="icon">@mipmap/ic_launcher</item>
+        <item name="android:logo">@mipmap/ic_launcher</item>
+        <item name="android:background">@color/colorAccent</item>
+        <item name="background">@color/colorAccent</item>
+        <item name="displayOptions">useLogo|showTitle</item>
+
+    </style>
+
+    <style name="AppTheme.ActionBar" parent="TextAppearance.AppCompat.Widget.ActionBar.Menu">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="windowActionBar">true</item>
+        <item name="windowNoTitle">false</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">true</item>
+        <item name="windowNoTitle">false</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

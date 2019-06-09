@@ -1,14 +1,16 @@
 package com.example.kmapp;
 
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.CheckBox;
 
@@ -20,6 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -27,7 +30,9 @@ public class New_Account extends AppCompatActivity {
     private EditText editName;
     private String name;
     private Button confirm_button;
-    private ImageButton back_button;
+    private ProgressBar pg;
+    private TextView title;
+    private User user;
 
     private FirebaseDatabase firebase;
     private DatabaseReference db_categories;
@@ -43,19 +48,32 @@ public class New_Account extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new__account);
+        setContentView(R.layout.activity_new_account);
 
         editName = findViewById(R.id.input_name);
         confirm_button = findViewById(R.id.confirm_button);
-        back_button = findViewById(R.id.back_button);
         mListView = findViewById( R.id.listView );
+        pg = findViewById(R.id.progress_bar_2);
+        title = findViewById(R.id.textView);
 
+        databaseAccess = ((MyApplication) this.getApplication()).getDatabaseAccess();
+
+        Intent intent = getIntent();
+        if(intent.getExtras() != null){
+            name = Objects.requireNonNull(intent.getExtras()).getString( "USERNAME");
+            user = databaseAccess.getUser(name);
+            title.setText("Edit Profile:");
+            editName.setText(name);
+        }
+
+        ActionBar actionBar = getSupportActionBar();
+        assert actionBar != null;
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         firebase = FirebaseDatabase.getInstance();
         adapter = new CategoriesAdapter(getApplicationContext(), readCategories());
         mListView.setAdapter( adapter );
 
-        databaseAccess = ((MyApplication) this.getApplication()).getDatabaseAccess();
 
         mListView.setOnItemClickListener((parent, view, position, id) -> {
             CheckBox objCheckbox = view.findViewById(R.id.checkbox);
@@ -81,11 +99,16 @@ public class New_Account extends AppCompatActivity {
             else{
                 if(preferences.isEmpty())
                     preferences.addAll(categories.stream().map(Categories::getId).collect(Collectors.toList()));
-                if(! databaseAccess.insertUser(new User(name, preferences))) {
+                if(user != null){
+                    user.setName(name);
+                    user.setPreferences(preferences);
+                    databaseAccess.updateUser(user);
+                    runOnUiThread(() -> Toast.makeText(getApplicationContext(),"Profile Modified",Toast.LENGTH_SHORT).show());
+                }
+                else if(! databaseAccess.insertUser(new User(name, preferences))) {
                     runOnUiThread(() -> Toast.makeText(getApplicationContext(), "User " + name + " already exist!", Toast.LENGTH_SHORT).show());
                     return;
-                }
-                runOnUiThread(() -> Toast.makeText(getApplicationContext(),"New Account saved",Toast.LENGTH_SHORT).show());
+                }else runOnUiThread(() -> Toast.makeText(getApplicationContext(),"New Account saved",Toast.LENGTH_SHORT).show());
 
                 ((MyApplication) this.getApplication()).setNetworkTask();
                 Intent initConf = new Intent( New_Account.this, InitialConfiguration.class );
@@ -95,7 +118,8 @@ public class New_Account extends AppCompatActivity {
             }
         });
 
-        back_button.setOnClickListener(v -> New_Account.super.onBackPressed());
+        pg.setVisibility(View.VISIBLE);
+
     }
 
     public ArrayList<Categories> readCategories(){
@@ -110,10 +134,16 @@ public class New_Account extends AppCompatActivity {
                     cat.setId(dataSnapshot.child("cat"+Integer.toString(i)+"id").getValue(Integer.class));
                     cat.setText(dataSnapshot.child("cat"+Integer.toString(i)+"name").getValue(String.class));
                     cat.setChecked(false);
-
+                    if( user != null){
+                        if(user.getPreferences().contains(cat.getId())){
+                            cat.setChecked(true);
+                            preferences.add(cat.getId());
+                        }
+                    }
                     categories.add(cat);
                     array.add(cat);
                 }
+                pg.setVisibility(View.GONE);
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -121,6 +151,13 @@ public class New_Account extends AppCompatActivity {
         });
         return array;
     }
+
+    @Override
+    public boolean onSupportNavigateUp(){
+        this.finish();
+        return true;
+    }
+
 
 
 }

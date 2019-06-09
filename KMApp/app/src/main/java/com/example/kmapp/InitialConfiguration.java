@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -24,6 +25,7 @@ public class InitialConfiguration extends AppCompatActivity {
     private MediaPlayer mp;
     private User user;
     private JSONObject json;
+    private ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,8 +33,11 @@ public class InitialConfiguration extends AppCompatActivity {
         setContentView( R.layout.activity_intial_configuration );
 
         start_button = findViewById(R.id.button);
-        back_button = findViewById(R.id.back_button);
         text = findViewById(R.id.textView4);
+
+        actionBar = getSupportActionBar();
+        assert actionBar != null;
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         databaseAccess = ((MyApplication) this.getApplication()).getDatabaseAccess();
         networktask = ((MyApplication) this.getApplication()).getNetworktask();
@@ -42,17 +47,13 @@ public class InitialConfiguration extends AppCompatActivity {
         String userName = Objects.requireNonNull(intent.getExtras()).getString( "USERNAME");
         user = databaseAccess.getUser(userName);
 
-        start_button.setOnClickListener(v -> {
-            startConfig();
-        });
-
-        back_button.setOnClickListener( v -> super.onBackPressed());
+        start_button.setOnClickListener(v -> startConfig());
     }
 
     private void noConnection(){
         runOnUiThread(() ->  Toast.makeText(getApplicationContext(), "No connection with the Server!", Toast.LENGTH_SHORT).show());
         runOnUiThread(() -> start_button.setEnabled(true));
-        runOnUiThread(() -> back_button.setEnabled(true));
+        runOnUiThread(() -> actionBar.setDisplayHomeAsUpEnabled(true));
     }
 
     private void startConfig(){
@@ -63,7 +64,7 @@ public class InitialConfiguration extends AppCompatActivity {
                     synchronized (this) {
                         try{
                             runOnUiThread(() -> start_button.setEnabled(false));
-                            runOnUiThread(() -> back_button.setEnabled(false));
+                            runOnUiThread(() -> actionBar.setDisplayHomeAsUpEnabled(false));
 
                             if(! networktask.isConnected()) {
                                 noConnection();
@@ -103,11 +104,11 @@ public class InitialConfiguration extends AppCompatActivity {
                             runOnUiThread(() -> text.setText("Thank you, now I'm ready to start!"));
                             databaseAccess.updateUser(user);
 
-                            runOnUiThread(() -> back_button.setEnabled(true));
+                            runOnUiThread(() -> actionBar.setDisplayHomeAsUpEnabled(true));
 
                             wait(3000);
                             runOnUiThread(() -> start_button.setEnabled(true));
-                            runOnUiThread(InitialConfiguration.this::finish);
+                            runOnUiThread(InitialConfiguration.this::onSupportNavigateUp);
 
                         } catch (JSONException e){
                             e.printStackTrace();
@@ -118,5 +119,14 @@ public class InitialConfiguration extends AppCompatActivity {
                 }
             }
         }.start();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp(){
+        Intent account = new Intent( this, Account.class );
+        account.putExtra( "USERNAME", user.getName() );
+        startActivity( account );
+        this.finish();
+        return true;
     }
 }

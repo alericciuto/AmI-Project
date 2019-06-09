@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
         gridView.setVisibility( View.GONE );
         delete_account.setVisibility( View.GONE );
 
+        getSupportActionBar().hide();
+
         //fill the list view with the task list
 
         tts = new TextToSpeech(MainActivity.this, status -> {

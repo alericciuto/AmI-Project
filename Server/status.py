@@ -6,7 +6,6 @@ from initial_configuration import run
 
 class Status:
 
-    # finchè sensore non arriva -> valore di default
     def __init__(self, eyelid=-1, pressure=False, previous_status="awake",
                  flag_pressure_busy=False, connection=None):
         self.eyelid = eyelid
@@ -58,7 +57,7 @@ class Status:
     def is_awake(self):
         while self.flag_pressure_busy:
             pass
-        if ((self.eyelid - self.MIN_EYELID) / (self.MAX_EYELID - self.MIN_EYELID)) * 100 > 60 and self.pressure is True:
+        if ((self.eyelid - self.MIN_EYELID) / (self.MAX_EYELID - self.MIN_EYELID)) * 100 > 60: # and self.pressure is True:
             return True
         else:
             return False
@@ -73,7 +72,7 @@ class Status:
         while self.flag_pressure_busy:
             pass
         if ((self.eyelid - self.MIN_EYELID) / (
-                self.MAX_EYELID - self.MIN_EYELID)) * 100 < 50 and self.pressure is False:
+                self.MAX_EYELID - self.MIN_EYELID)) * 100 < 50: # and self.pressure is False:
             return True
         else:
             return False

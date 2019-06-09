@@ -7,42 +7,15 @@
     android:background="@color/colorPrimary"
     tools:context=".ConversationActivity">
 
-
-    <RelativeLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="20dp">
-
-        <ListView
-            android:id="@+id/list_msg"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="false"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="30dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="40dp"
-            android:divider="@null"
-            android:listSelector="@android:color/transparent"
-            android:transcriptMode="alwaysScroll" />
-
-
-    </RelativeLayout>
-    <!--<TextView
-        android:id="@+id/resultTextView"
-        android:layout_width="0dp"
-        android:layout_height="513dp"
-        android:layout_marginStart="54dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginEnd="54dp"
-        android:text=""
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="487dp"
+        android:layout_height="684dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="120dp"
+        android:layout_marginEnd="40dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.181"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />-->
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>

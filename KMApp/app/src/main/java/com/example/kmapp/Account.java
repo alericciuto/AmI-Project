@@ -66,9 +66,9 @@ public class Account extends AppCompatActivity {
         back_button.setOnClickListener(v -> openMainPage());
 
         conv_button.setOnClickListener(v -> {
-            if(! user.is_configured())
+            /*if(! user.is_configured())
                 openInitialConfig();
-            else openConversationActivity();
+            else*/ openConversationActivity();
         });
 
         detect_button.setOnClickListener(v -> {
@@ -104,12 +104,6 @@ public class Account extends AppCompatActivity {
         String buffer = databaseAccess.getPreferences(userName);
         db_user = firebase.getReference("userInfo");
         db_user.child("prefInfo").setValue(buffer);
-    }
-
-    private void openInitialConfig() {
-        Intent initConf = new Intent( this, InitialConfiguration.class );
-        initConf.putExtra( "USERNAME", user.getName() );
-        startActivity( initConf );
     }
 
     protected void openConversationActivity(){

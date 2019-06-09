@@ -62,12 +62,12 @@ public class New_Account extends AppCompatActivity {
             Categories cat = categories.get( position );
             if(cat.isChecked()) {
                 cat.setChecked(false);
-                preferences.remove(position);
+                preferences.remove(cat.getId());
                 objCheckbox.setChecked(false);
             }
             else{
                 cat.setChecked( true );
-                preferences.add(position);
+                preferences.add(cat.getId());
                 objCheckbox.setChecked(true);
             }
 

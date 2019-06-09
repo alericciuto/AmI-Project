@@ -25,26 +25,24 @@ import com.google.gson.JsonElement;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
-
-import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.ArrayAdapter;
+import java.util.Map;
 
 import android.speech.tts.TextToSpeech;
 
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.example.kmapp.ResponseMessage2;
+
 public class ConversationActivity extends AppCompatActivity implements AIListener {
 
-    private TextView resultTextView;
     private AIService aiService;
     private int conversation_enable=0;
     private int speech_error_limiter;
@@ -52,18 +50,24 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     public String city = "";
     private int conv_progress = 0;
     private int false_end=0;
+    private String news = "";
 
-    //BubbleChat
-    private ListView listView;
-    private List<ChatBubble> ChatBubbles;
-    private ArrayAdapter<ChatBubble> adapter;
+    private RecyclerView recyclerView;
+    List<ResponseMessage2> responseMessageList;
+    MessageAdapter messageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         TTS = ((MyApplication) getApplicationContext()).getTTS();
         setContentView(R.layout.activity_conversation);
-        //resultTextView = (TextView) findViewById(R.id.resultTextView);
+
+        recyclerView = findViewById(R.id.recyclerView);
+        responseMessageList = new ArrayList<>();
+        messageAdapter = new MessageAdapter(responseMessageList, this);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false));
+        recyclerView.setAdapter(messageAdapter);
+
         final AIConfiguration config = new AIConfiguration("b23a9af0092b49de8bb3976eb20f33ad",
                 AIConfiguration.SupportedLanguages.English,
                 AIConfiguration.RecognitionEngine.System);
@@ -71,14 +75,13 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         aiService.setListener(this);
         speech_error_limiter=0;
         activationCall();
+    }
 
-        //BubbleChat
-        ChatBubbles = new ArrayList<>();
-
-        listView = (ListView) findViewById(R.id.list_msg);
-        //set ListView adapter first
-        adapter = new MessageAdapter(this, R.layout.left_chat_bubble, ChatBubbles);
-        listView.setAdapter(adapter);
+    boolean isLastVisible() {
+        LinearLayoutManager layoutManager = ((LinearLayoutManager) recyclerView.getLayoutManager());
+        int pos = layoutManager.findLastCompletelyVisibleItemPosition();
+        int numItems = recyclerView.getAdapter().getItemCount();
+        return (pos >= numItems);
     }
 
     protected void activationCall(){
@@ -87,7 +90,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         a.postDelayed(new Runnable() {
             @Override
             public void run() {
-                TTS.speak("Lifesaver Protocol", TextToSpeech.QUEUE_FLUSH, null, null);
+                TTS.speak("Keep Me Awake", TextToSpeech.QUEUE_FLUSH, null, null);
                 while(TTS.isSpeaking()){}
             }
         }, 1000);
@@ -98,9 +101,11 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         false_end = 0;
         Result result = response.getResult();
 
-        ChatBubble ChatBubble = new ChatBubble(result.getResolvedQuery(), false);
-        ChatBubbles.add(ChatBubble);
-        adapter.notifyDataSetChanged();
+        ResponseMessage2 responseMessage = new ResponseMessage2(result.getResolvedQuery(), true);
+        responseMessageList.add(responseMessage);
+        messageAdapter.notifyDataSetChanged();
+        if (!isLastVisible())
+            recyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
 
         // Get parameters
         String parameterString = "";
@@ -117,7 +122,6 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         }
         //conversazione iniziata
         else if(conversation_enable==1 && result.getAction().compareTo("input.welcome")==0){
-            resultTextView.setText("Your conversation is still running!");
             String reply = "Your conversation is still running!";
             handleResult(reply);
             return;
@@ -125,7 +129,6 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         //conversazione non iniziata e domanda non di ingresso
         else if(conversation_enable==0 && result.getAction().compareTo("input.welcome")!=0){
             String reply = "You have to start the conversation first!";
-            resultTextView.setText(reply);
             handleResult(reply);
             return;
         }
@@ -139,17 +142,40 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         //conversazione intermedia
         else if(conversation_enable==1 && result.getAction().compareTo("input.welcome")!=0){
             if (result.getAction().compareTo("choiceWeather") == 0) {
-                city = result.getFulfillment().getSpeech();
-                conv_progress = conv_progress+1;
-                false_end=0;
-                Handler a = new Handler();
-                a.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        fetchMeteoData p = new fetchMeteoData();
-                        p.execute();
-                    }
-                }, 2000);
+                if(result.getParameters().size()==0){
+                    handleResult("You have to specify the city");
+                }
+                else {
+                    city = result.getFulfillment().getSpeech().replace(" ", "%20");
+                    conv_progress = conv_progress + 1;
+                    false_end = 0;
+                    Handler a = new Handler();
+                    a.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            fetchMeteoData p = new fetchMeteoData();
+                            p.execute();
+                        }
+                    }, 2000);
+                }
+            }
+            else if (result.getAction().compareTo("choiceNews") == 0) {
+                if(result.getParameters().size()==0){
+                    handleResult("You have to specify the topic");
+                }
+                else{
+                    news = result.getFulfillment().getSpeech().replace(" ", "%20");
+                    conv_progress = conv_progress+1;
+                    false_end=0;
+                    Handler a = new Handler();
+                    a.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            fetchNewsData p = new fetchNewsData();
+                            p.execute();
+                        }
+                    }, 2000);
+                }
             }
             else {
                 if (result.getAction().compareTo("choiceTrivia") == 0) {
@@ -158,7 +184,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                 }
                 ResponseMessage.ResponseSpeech r = null;
                 StringBuilder sb = new StringBuilder();
-                String reply, reply2;
+                String reply;
                 if (result.getFulfillment().getSpeech().compareTo("") != 0) {
                     sb.append(result.getFulfillment().getSpeech());
                     reply = sb.toString();
@@ -169,11 +195,6 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                         sb.append(r.getSpeech().toString());
                         sb.append("\n");
                     }
-                    reply2 = "Query:" + result.getResolvedQuery() + "\n" + sb.toString();
-                    //resultTextView.setText(reply2);
-                    ChatBubble = new ChatBubble(reply2, true);
-                    ChatBubbles.add(ChatBubble);
-                    adapter.notifyDataSetChanged();
                     reply = sb.toString();
                 }
 
@@ -187,10 +208,11 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         a.post(new Runnable() {
             @Override
             public void run() {
-                //resultTextView.setText(reply);
-                ChatBubble ChatBubble = new ChatBubble(reply, true);
-                ChatBubbles.add(ChatBubble);
-                adapter.notifyDataSetChanged();
+                ResponseMessage2 responseMessage = new ResponseMessage2(reply, false);
+                responseMessageList.add(responseMessage);
+                messageAdapter.notifyDataSetChanged();
+                if (!isLastVisible())
+                    recyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
             }
         });
         a.postDelayed(new Runnable() {
@@ -201,7 +223,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                     @Override
                     public void run() {
                         while(TTS.isSpeaking()){}
-                        if(conv_progress>=3 && false_end==0)  {
+                        if(conv_progress>=5 && false_end==0)  {
                             handleExit("Time to focus on the road!");
                         }
                         else{
@@ -217,10 +239,11 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         a.post(new Runnable() {
             @Override
             public void run() {
-                //resultTextView.setText(reply);
-                ChatBubble ChatBubble = new ChatBubble(reply, true);
-                ChatBubbles.add(ChatBubble);
-                adapter.notifyDataSetChanged();
+                ResponseMessage2 responseMessage = new ResponseMessage2(reply, false);
+                responseMessageList.add(responseMessage);
+                messageAdapter.notifyDataSetChanged();
+                if (!isLastVisible())
+                    recyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
             }
         });
         a.postDelayed(new Runnable() {
@@ -255,10 +278,11 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
             a.post(new Runnable() {
                 @Override
                 public void run() {
-                    //resultTextView.setText(reply);
-                    ChatBubble ChatBubble = new ChatBubble(reply, true);
-                    ChatBubbles.add(ChatBubble);
-                    adapter.notifyDataSetChanged();
+                    ResponseMessage2 responseMessage = new ResponseMessage2(reply, false);
+                    responseMessageList.add(responseMessage);
+                    messageAdapter.notifyDataSetChanged();
+                    if (!isLastVisible())
+                        recyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
                 }
             });
             a.postDelayed(new Runnable() {
@@ -285,9 +309,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     @Override
     public void onAudioLevel(final float level) {}
 
-    public String getCity() {
-        return city;
-    }
+
     public class fetchMeteoData extends AsyncTask<Void,Void,Void> {
         String data ="";
         String dataParsed = "";
@@ -314,9 +336,9 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                 JSONObject tmp_weather = ((JSONArray) jo.get("weather")).getJSONObject(0);
 
                 dataParsed = "In " + city + " the weather is caracterized by " + tmp_weather.get("description") + "\n" +
-                        "Currently there are : " + String.format("%.2f", temp) +" grades" + "\n" +
-                        "The minimum temperature is : " + String.format("%.2f", tempMin) +" grades" + "\n" +
-                        "The maximum temperature is : " + String.format("%.2f", tempMax) +" grades" + "\n" +
+                        "Currently there are : " + String.format("%.0f", temp) +" grades" + "\n" +
+                        "The minimum temperature is : " + String.format("%.0f", tempMin) +" grades" + "\n" +
+                        "The maximum temperature is : " + String.format("%.0f", tempMax) +" grades" + "\n" +
                         "Do you want to do something else?";
 
             } catch (MalformedURLException e) {
@@ -337,5 +359,51 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         }
     }
 
+    public class fetchNewsData extends AsyncTask<Void,Void,Void> {
+        String data ="";
+        String dataParsed = "";
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                URL url = new URL("https://newsapi.org/v2/everything?q=" + news + "&sortBy=popularity&apiKey=3dc5347cbb25465885aab935b3aae6c0");
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                InputStream inputStream = httpURLConnection.getInputStream();
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                String line = "";
+                while(line != null){
+                    line = bufferedReader.readLine();
+                    data = data + line;
+                }
 
+                JSONObject jo = new JSONObject(data);
+
+                JSONArray art = (JSONArray)jo.get("articles");
+                int totRes = art.length();
+                int num_article = (int)(Math.random()*totRes);
+                JSONObject article = ((JSONArray) jo.get("articles")).getJSONObject(num_article);
+                String description = (String)article.get("description");
+                String j = (String)((JSONObject)article.get("source")).get("name");
+                String[] des = description.split("\\. ");
+                dataParsed = (String)article.get("title") + "\n" +
+                        des[0] + "\n" +
+                        "To continue go to: " + "\n" + (String)((JSONObject)article.get("source")).get("name") + "\n" +
+                        "Do you want to do something else?";
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            handleResult(dataParsed);
+        }
+    }
 }

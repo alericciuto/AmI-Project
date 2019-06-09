@@ -28,6 +28,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import android.speech.tts.TextToSpeech;
 
@@ -183,19 +184,18 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                     false_end=1;
                 }
                 ResponseMessage.ResponseSpeech r = null;
-                StringBuilder sb = new StringBuilder();
+                List<String> sb = new ArrayList<>();
                 String reply;
                 if (result.getFulfillment().getSpeech().compareTo("") != 0) {
-                    sb.append(result.getFulfillment().getSpeech());
+                    sb.add(result.getFulfillment().getSpeech());
                     reply = sb.toString();
                 } else {
                     int l = result.getFulfillment().getMessages().size();
                     for (int i = 0; i < l; i++) {
                         r = (ResponseMessage.ResponseSpeech) result.getFulfillment().getMessages().get(i);
-                        sb.append(r.getSpeech().toString());
-                        sb.append("\n");
+                        sb.addAll(r.getSpeech());
                     }
-                    reply = sb.toString();
+                    reply = sb.stream().collect(Collectors.joining("\n"));;
                 }
 
                 handleResult(reply);

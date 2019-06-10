@@ -37,7 +37,6 @@ public class New_Account extends AppCompatActivity {
     private FirebaseDatabase firebase;
     private DatabaseReference db_categories;
     private DatabaseAccess databaseAccess;
-    private NetworkTask networktask;
 
     private ListView mListView;
     private int num_categories;
@@ -100,9 +99,15 @@ public class New_Account extends AppCompatActivity {
                 if(preferences.isEmpty())
                     preferences.addAll(categories.stream().map(Categories::getId).collect(Collectors.toList()));
                 if(user != null){
-                    user.setName(name);
-                    user.setPreferences(preferences);
-                    databaseAccess.updateUser(user);
+                    if(user.getName().equals(name)){
+                        user.setPreferences(preferences);
+                        databaseAccess.deleteUser(user.getName());
+                        databaseAccess.insertUser(user);
+                    }
+                    else if (! databaseAccess.insertUser(new User(name, preferences, user.getMAX_EYELID(), user.getMIN_EYELID()))){
+                        runOnUiThread(() -> Toast.makeText(getApplicationContext(), "User " + name + " already exist!", Toast.LENGTH_SHORT).show());
+                        return;
+                    }else databaseAccess.deleteUser(user.getName());
                     runOnUiThread(() -> Toast.makeText(getApplicationContext(),"Profile Modified",Toast.LENGTH_SHORT).show());
                 }
                 else if(! databaseAccess.insertUser(new User(name, preferences))) {
@@ -110,7 +115,8 @@ public class New_Account extends AppCompatActivity {
                     return;
                 }else runOnUiThread(() -> Toast.makeText(getApplicationContext(),"New Account saved",Toast.LENGTH_SHORT).show());
 
-                ((MyApplication) this.getApplication()).setNetworkTask();
+                if(user == null)
+                    ((MyApplication) this.getApplication()).setNetworkTask();
                 Intent initConf = new Intent( New_Account.this, InitialConfiguration.class );
                 initConf.putExtra( "USERNAME", name );
                 startActivity( initConf );

@@ -72,9 +72,6 @@ public class Account extends AppCompatActivity {
         db_user.child("prefInfo").setValue(buffer);
         user = databaseAccess.getUser(userName);
 
-        ((MyApplication) this.getApplication()).setNetworkTask();
-        networktask = ((MyApplication) this.getApplication()).getNetworktask();
-
         mp = MediaPlayer.create(getApplicationContext(), R.raw.alarm_sleeping);
         mp.setLooping(true);
 
@@ -105,6 +102,7 @@ public class Account extends AppCompatActivity {
             if(networktask.isConnected()) {
                 runOnUiThread(() -> detect_button.setEnabled(false));
                 runOnUiThread(() -> actionBar.setDisplayHomeAsUpEnabled(false));
+                runOnUiThread(() -> stop_button.setEnabled(true));
                 networktask.sendData("MAX_EYELID", String.valueOf(user.getMAX_EYELID()));
                 networktask.sendData("MIN_EYELID", String.valueOf(user.getMIN_EYELID()));
                 networktask.sendData("start_server", "true");
@@ -119,7 +117,12 @@ public class Account extends AppCompatActivity {
                     mp.stop();
                 runOnUiThread(() -> actionBar.setDisplayHomeAsUpEnabled(false));
                 runOnUiThread(() -> detect_button.setEnabled(true));
-                onSupportNavigateUp();
+                runOnUiThread(() -> stop_button.setEnabled(false));
+                if(networktask.isConnected()) {
+                    networktask.sendData("start_server", "false");
+                    ((MyApplication) this.getApplication()).setNetworkTask();
+                    networktask = ((MyApplication) this.getApplication()).getNetworktask();
+                }
             }else runOnUiThread(() -> Toast.makeText( this, "No detection is running!", Toast.LENGTH_SHORT ).show());
         });
 
@@ -151,7 +154,6 @@ public class Account extends AppCompatActivity {
             networktask.sendData( "start_server", "false" );
         Intent conv = new Intent( this, ConversationActivity.class );
         startActivity( conv );
-        this.finish();
     }
 
     private void RequestRecordPermission() {
@@ -185,6 +187,8 @@ public class Account extends AppCompatActivity {
     @Override
     protected void onResume(){
         super.onResume();
+        ((MyApplication) this.getApplication()).setNetworkTask();
+        networktask = ((MyApplication) this.getApplication()).getNetworktask();
         getCategories(user.getPreferences());
     }
 

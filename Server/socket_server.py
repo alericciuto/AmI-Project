@@ -19,14 +19,13 @@ class SocketServer:
     client_addr = None
 
     def __init__(self, port):
-        # self.host = socket.gethostbyname(socket.gethostname())
-        self.host = '172.22.56.57'
+        self.host = '192.168.1.6'
         self.port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.socket.bind((self.host, self.port))
             self.socket.listen(1)
-            print('>> Socket created')
+            print('>> Socket created on port ' + str(self.port))
         except socket.error as err:
             print('>> Bind failed. Error Code : '.format(err))
 

@@ -54,7 +54,6 @@ public class DatabaseAccess {
             user.setPreferences(setPreferences(c.getString(1)));
             user.setMAX_EYELID(Float.parseFloat(c.getString(2)));
             user.setMIN_EYELID(Float.parseFloat(c.getString(3)));
-            user.setMAX_PRESSURE(Integer.parseInt(c.getString(4)));
             list.add(user);
         }
         c.close();
@@ -70,8 +69,7 @@ public class DatabaseAccess {
                 "('"+ user.getName() +"','"+
                 getPreferences(user.getPreferences())+"','"+
                 user.getMAX_EYELID()+"','"+
-                user.getMIN_EYELID()+"','"+
-                user.getMAX_PRESSURE()+
+                user.getMIN_EYELID()+
                 "')" );
         close();
         return true;
@@ -97,7 +95,6 @@ public class DatabaseAccess {
             user.setPreferences(setPreferences(c.getString(1)));
             user.setMAX_EYELID(Float.parseFloat(c.getString(2)));
             user.setMIN_EYELID(Float.parseFloat(c.getString(3)));
-            user.setMAX_PRESSURE(Integer.parseInt(c.getString(4)));
         }
         c.close();
         close();

@@ -65,7 +65,7 @@ public class DatabaseAccess {
         if(getUserNames().contains(user.getName()))
             return false;
         open();
-        db.execSQL( "insert into UserTable (Name, Preferences, MAX_EYELID, MIN_EYELID, MAX_PRESSURE) values " +
+        db.execSQL( "insert into UserTable (Name, Preferences, MAX_EYELID, MIN_EYELID) values " +
                 "('"+ user.getName() +"','"+
                 getPreferences(user.getPreferences())+"','"+
                 user.getMAX_EYELID()+"','"+

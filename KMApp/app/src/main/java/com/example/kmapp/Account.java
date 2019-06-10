@@ -27,6 +27,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -118,11 +121,11 @@ public class Account extends AppCompatActivity {
                 runOnUiThread(() -> actionBar.setDisplayHomeAsUpEnabled(false));
                 runOnUiThread(() -> detect_button.setEnabled(true));
                 runOnUiThread(() -> stop_button.setEnabled(false));
-                if(networktask.isConnected()) {
-                    networktask.sendData("start_server", "false");
-                    ((MyApplication) this.getApplication()).setNetworkTask();
-                    networktask = ((MyApplication) this.getApplication()).getNetworktask();
-                }
+//                if(networktask.isConnected()) {
+//                    networktask.sendData("start_server", "false");
+//                    ((MyApplication) this.getApplication()).setNetworkTask();
+//                    networktask = ((MyApplication) this.getApplication()).getNetworktask();
+//                }
             }else runOnUiThread(() -> Toast.makeText( this, "No detection is running!", Toast.LENGTH_SHORT ).show());
         });
 
@@ -236,20 +239,20 @@ public class Account extends AppCompatActivity {
     }
 
     private void detecting(){
-        // DA SCOMMENTARE QUANDO FINIAMO, SUONA DUE VOLTE PRIMA DI INIZIARE A PARLARE
-        // LEVARE IL TASTO STOP SENNO NON FUNZIONA
-//        for(int i =0; i <4 ; i++){
-//            try {
-//                JSONObject json = networktask.receiveData();
-//                if(json.get("sound").equals("on"))
-//                    mp.start();
-//                else if (json.get("sound").equals("off"))
-//                    mp.pause();
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        openConversationActivity();
+         //DA SCOMMENTARE QUANDO FINIAMO, SUONA DUE VOLTE PRIMA DI INIZIARE A PARLARE
+         //LEVARE IL TASTO STOP SENNO NON FUNZIONA
+        for(int i =0; i <4 ; i++){
+            try {
+                JSONObject json = networktask.receiveData();
+                if(json.get("sound").equals("on"))
+                    mp.start();
+                else if (json.get("sound").equals("off"))
+                    mp.pause();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        openConversationActivity();
     }
 
 }

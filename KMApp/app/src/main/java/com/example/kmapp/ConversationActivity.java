@@ -91,7 +91,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         a.postDelayed(new Runnable() {
             @Override
             public void run() {
-                TTS.speak("Keep Me Awake", TextToSpeech.QUEUE_FLUSH, null, null);
+                TTS.speak("Time to wake up", TextToSpeech.QUEUE_FLUSH, null, null);
                 while(TTS.isSpeaking()){}
             }
         }, 1000);
@@ -147,7 +147,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                     handleResult("You have to specify the city");
                 }
                 else {
-                    city = result.getFulfillment().getSpeech().replace(" ", "%20");
+                    city = result.getFulfillment().getSpeech();
                     conv_progress = conv_progress + 1;
                     false_end = 0;
                     Handler a = new Handler();
@@ -165,7 +165,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                     handleResult("You have to specify the topic");
                 }
                 else{
-                    news = result.getFulfillment().getSpeech().replace(" ", "%20");
+                    news = result.getFulfillment().getSpeech();
                     conv_progress = conv_progress+1;
                     false_end=0;
                     Handler a = new Handler();
@@ -230,7 +230,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                             aiService.startListening();
                         }
                     }
-                }, 600);
+                }, 800);
             }
         }, 800);
     }
@@ -256,7 +256,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                         while(TTS.isSpeaking()){}
                         endActivity();
                     }
-                }, 600);
+                }, 800);
             }
         }, 800);
     }
@@ -316,7 +316,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         @Override
         protected Void doInBackground(Void... voids) {
             try {
-                URL url = new URL("http://api.openweathermap.org/data/2.5/weather?q="+city+"&APPID=5b223f593e42fa8af1b7229cdd7e3f23");
+                URL url = new URL("http://api.openweathermap.org/data/2.5/weather?q="+city.replace(" ", "%20")+"&APPID=5b223f593e42fa8af1b7229cdd7e3f23");
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 InputStream inputStream = httpURLConnection.getInputStream();
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
@@ -365,7 +365,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         @Override
         protected Void doInBackground(Void... voids) {
             try {
-                URL url = new URL("https://newsapi.org/v2/everything?q=" + news + "&sortBy=popularity&apiKey=3dc5347cbb25465885aab935b3aae6c0");
+                URL url = new URL("https://newsapi.org/v2/everything?q=" + news.replace(" ", "%20") + "&sortBy=popularity&apiKey=3dc5347cbb25465885aab935b3aae6c0");
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 InputStream inputStream = httpURLConnection.getInputStream();
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));

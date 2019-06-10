@@ -98,6 +98,8 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     }
 
     public void onResult(final AIResponse response) {
+        city = "";
+        news = "";
         speech_error_limiter = 0;
         false_end = 0;
         Result result = response.getResult();
@@ -135,7 +137,6 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         }
         //conversazione iniziata e domanda di uscita
         else if(conversation_enable==1 && result.getAction().compareTo("input.quitting")==0){
-            conversation_enable=0;
             String reply = result.getFulfillment().getSpeech();
             handleExit(reply);
             return;
@@ -150,14 +151,8 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                     city = result.getFulfillment().getSpeech();
                     conv_progress = conv_progress + 1;
                     false_end = 0;
-                    Handler a = new Handler();
-                    a.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            fetchMeteoData p = new fetchMeteoData();
-                            p.execute();
-                        }
-                    }, 2000);
+                    fetchMeteoData p = new fetchMeteoData();
+                    p.execute();
                 }
             }
             else if (result.getAction().compareTo("choiceNews") == 0) {
@@ -166,16 +161,10 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                 }
                 else{
                     news = result.getFulfillment().getSpeech();
-                    conv_progress = conv_progress+1;
-                    false_end=0;
-                    Handler a = new Handler();
-                    a.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            fetchNewsData p = new fetchNewsData();
-                            p.execute();
-                        }
-                    }, 2000);
+                    conv_progress = conv_progress + 1;
+                    false_end = 0;
+                    fetchNewsData p = new fetchNewsData();
+                    p.execute();
                 }
             }
             else {
@@ -246,6 +235,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                     recyclerView.smoothScrollToPosition(messageAdapter.getItemCount() - 1);
             }
         });
+        conversation_enable=0;
         a.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -316,6 +306,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         @Override
         protected Void doInBackground(Void... voids) {
             try {
+                while(city.compareTo("")==0){}
                 URL url = new URL("http://api.openweathermap.org/data/2.5/weather?q="+city.replace(" ", "%20")+"&APPID=5b223f593e42fa8af1b7229cdd7e3f23");
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 InputStream inputStream = httpURLConnection.getInputStream();
@@ -365,6 +356,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         @Override
         protected Void doInBackground(Void... voids) {
             try {
+                while(news.compareTo("")==0){}
                 URL url = new URL("https://newsapi.org/v2/everything?q=" + news.replace(" ", "%20") + "&sortBy=popularity&apiKey=3dc5347cbb25465885aab935b3aae6c0");
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 InputStream inputStream = httpURLConnection.getInputStream();

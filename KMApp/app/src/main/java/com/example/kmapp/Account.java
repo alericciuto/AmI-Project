@@ -57,13 +57,28 @@ public class Account extends AppCompatActivity {
     private DatabaseReference db_user;
     private ArrayList<String> categories;
 
-    private int PERMISSION_CODE = 1;
+    private int PERMISSIONRECORD_CODE = 1;
+    private int PERMISSIONGPS_CODE = 1;
 
     @SuppressLint("DefaultLocale")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_account );
+
+        if(ContextCompat.checkSelfPermission( Account.this, Manifest.permission.RECORD_AUDIO ) == PackageManager.PERMISSION_DENIED) {
+            RequestRecordPermission();
+        }
+        if(ContextCompat.checkSelfPermission( Account.this, Manifest.permission.RECORD_AUDIO ) == PackageManager.PERMISSION_DENIED) {
+            return;
+        }
+
+        if(ContextCompat.checkSelfPermission( Account.this, Manifest.permission.ACCESS_FINE_LOCATION ) == PackageManager.PERMISSION_DENIED) {
+            RequestGPSPermission();
+        }
+        if(ContextCompat.checkSelfPermission( Account.this, Manifest.permission.ACCESS_FINE_LOCATION ) == PackageManager.PERMISSION_DENIED) {
+            return;
+        }
 
         Intent intent = getIntent();
         userName = Objects.requireNonNull(intent.getExtras()).getString( "USERNAME");
@@ -148,12 +163,6 @@ public class Account extends AppCompatActivity {
     }
 
     protected void openConversationActivity(){
-        if(ContextCompat.checkSelfPermission( Account.this, Manifest.permission.RECORD_AUDIO ) == PackageManager.PERMISSION_DENIED) {
-            RequestRecordPermission();
-        }
-        if(ContextCompat.checkSelfPermission( Account.this, Manifest.permission.RECORD_AUDIO ) == PackageManager.PERMISSION_DENIED) {
-            return;
-        }
         if(networktask.isConnected())
             networktask.sendData( "start_server", "false" );
         Intent conv = new Intent( this, ConversationActivity.class );
@@ -167,19 +176,43 @@ public class Account extends AppCompatActivity {
                     .setTitle( "Permission" )
                     .setMessage( "This permission is needed to start the conversation." )
                     .setPositiveButton( "Ok", (dialog, which) -> {
-                        ActivityCompat.requestPermissions( Account.this, new String[] {Manifest.permission.RECORD_AUDIO}, PERMISSION_CODE );
+                        ActivityCompat.requestPermissions( Account.this, new String[] {Manifest.permission.RECORD_AUDIO}, PERMISSIONRECORD_CODE );
                         dialog.dismiss();
                     })
                     .setNegativeButton( "Cancel", (dialog, which) -> dialog.dismiss())
                     .create().show();
         } else {
-            ActivityCompat.requestPermissions( this, new String[] {Manifest.permission.RECORD_AUDIO}, PERMISSION_CODE );
+            ActivityCompat.requestPermissions( this, new String[] {Manifest.permission.RECORD_AUDIO}, PERMISSIONRECORD_CODE );
+        }
+    }
+
+    private void RequestGPSPermission(){
+        if(ActivityCompat.shouldShowRequestPermissionRationale( this, Manifest.permission.ACCESS_FINE_LOCATION )){
+
+            new AlertDialog.Builder( this )
+                    .setTitle( "Permission" )
+                    .setMessage( "This permission is needed to suggest nearest places to rest." )
+                    .setPositiveButton( "Ok", (dialog, which) -> {
+                        ActivityCompat.requestPermissions( Account.this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONGPS_CODE );
+                        dialog.dismiss();
+                    })
+                    .setNegativeButton( "Cancel", (dialog, which) -> dialog.dismiss())
+                    .create().show();
+        } else {
+            ActivityCompat.requestPermissions( this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONGPS_CODE );
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode == PERMISSION_CODE){
+        if(requestCode == PERMISSIONRECORD_CODE){
+            if(grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                Toast.makeText( this, "Permission GRANTED", Toast.LENGTH_SHORT ).show();
+            } else {
+                Toast.makeText( this, "Permission DENIED", Toast.LENGTH_SHORT ).show();
+            }
+        }
+        if(requestCode == PERMISSIONGPS_CODE){
             if(grantResults.length>0 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
                 Toast.makeText( this, "Permission GRANTED", Toast.LENGTH_SHORT ).show();
             } else {

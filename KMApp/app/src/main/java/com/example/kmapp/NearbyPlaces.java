@@ -16,27 +16,25 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 
-public class NearbyPlaces extends AppCompatActivity {
-    private String lat = "";
-    private String longt = "";
+public class NearbyPlaces extends AsyncTask<Void, Void, String> {
+        private String lat = "";
+        private String longt = "";
+        private String data = "";
+        private String dataParsed = "";
+        private GpsTracker tracker;
+        private Double latitude;
+        private Double longitude;
+        private boolean isDone;
 
-    @SuppressLint("StaticFieldLeak")
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        fetchLocationData x = new fetchLocationData();
-        x.execute();
+    public NearbyPlaces(GpsTracker tracker) {
+        this.tracker = tracker;
+        this.latitude = this.tracker.getLatitude();
+        this.longitude = this.tracker.getLongitude();
     }
 
-    public class fetchLocationData extends AsyncTask<Void, Void, Void> {
-        String data = "";
-        String dataParsed = "";
-        GpsTracker tracker = new GpsTracker(getApplicationContext());
-        Double latitude = tracker.getLatitude();
-        Double longitude = tracker.getLongitude();
-
-        @Override
-        protected Void doInBackground(Void... voids) {
+    @Override
+        protected String doInBackground(Void... voids) {
+        this.isDone = false;
             try {
                 URL url = new URL("https://graph.facebook.com/v3.2/search?type=place&center="
                         + latitude.toString() + "," + longitude.toString() + "&distance=2000" +
@@ -63,7 +61,7 @@ public class NearbyPlaces extends AppCompatActivity {
                 for (int j = 0; j < totRes; j++) {
                     singleData = data.getJSONObject(j);
                     name = (String) singleData.get("name");
-                    dataParsed = dataParsed + "/n"+ j +". " + name;
+                    dataParsed = dataParsed + "/n"+ j+1 +". " + name;
                 }
 
 
@@ -74,14 +72,26 @@ public class NearbyPlaces extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            return null;
+            return this.dataParsed;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+        protected void onPostExecute(String data) {
+            super.onPostExecute(data);
             //Toast.makeText(getApplicationContext(),dataParsed, Toast.LENGTH_LONG).show();
             //handleExit(dataParsed);
+            this.isDone = true;
         }
+
+    public String getDataParsed() {
+        return dataParsed;
+    }
+
+    public boolean isDone() {
+        return isDone;
+    }
+
+    public void setDone(boolean done) {
+        isDone = done;
     }
 }

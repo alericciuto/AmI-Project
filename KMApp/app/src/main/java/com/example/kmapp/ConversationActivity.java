@@ -297,8 +297,11 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         if(((MyApplication) this.getApplication()).getStartLocation()){
             ((MyApplication) this.getApplication()).setStartLocation(false);
             //FUNZIONI DI MODIFICA LAT E LONG
-            fetchLocationData x = new fetchLocationData();
-            x.execute();
+            NearbyPlaces placesToRest = new NearbyPlaces( new GpsTracker( getApplicationContext() ) );
+            placesToRest.execute();
+            while(!placesToRest.isDone());
+            handleExit(placesToRest.getDataParsed());
+
         }
     }
     @Override
@@ -410,51 +413,5 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         }
     }
 
-    public class fetchLocationData extends AsyncTask<Void,Void,Void> {
-        String data ="";
-        String dataParsed = "";
-        String names = "";
-        @Override
-        protected Void doInBackground(Void... voids) {
-            try {
-                while(lat.compareTo("")==0 || longt.compareTo("")==0){}
-                URL url = new URL("");
-                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-                InputStream inputStream = httpURLConnection.getInputStream();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                String line = "";
-                while(line != null){
-                    line = bufferedReader.readLine();
-                    data = data + line;
-                }
 
-                JSONObject jo = new JSONObject(data);
-
-                JSONArray data = (JSONArray)jo.get("data");
-                JSONObject singleData;
-                int totRes = data.length();
-                for(int j=0; j<totRes; j++){
-                    singleData = ((JSONObject) data.getJSONObject(j));
-                    names = names + ((String)singleData.get("name")) + "\n";
-                }
-
-                dataParsed = "Maybe it's better for you to rest for a while.\nHere are the nearest places to do it:" + names;
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            handleExit(dataParsed);
-        }
-    }
 }

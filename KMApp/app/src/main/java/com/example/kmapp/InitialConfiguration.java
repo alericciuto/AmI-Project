@@ -126,6 +126,8 @@ public class InitialConfiguration extends AppCompatActivity {
         Intent account = new Intent( this, Account.class );
         account.putExtra( "USERNAME", user.getName() );
         startActivity( account );
+        if( networktask.isConnected() )
+            networktask.sendData("start_server", "false");
         this.finish();
         return true;
     }

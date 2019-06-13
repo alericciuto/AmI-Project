@@ -8,6 +8,15 @@ public class MyApplication extends Application {
 
     private DatabaseAccess databaseAccess;
     private NetworkTask networktask;
+    private boolean restartDetect = false;
+
+    public boolean getRestartDetect() {
+        return restartDetect;
+    }
+
+    public void setRestartDetect(boolean restartDetect) {
+        this.restartDetect = restartDetect;
+    }
 
     private TextToSpeech tts;
 
@@ -35,5 +44,7 @@ public class MyApplication extends Application {
     public void setTTS(TextToSpeech tts){
         this.tts = tts;
     }
+
+
 }
 

@@ -251,6 +251,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         }, 800);
     }
     protected void endActivity() {
+        ((MyApplication) this.getApplication()).setRestartDetect(true);
         this.finish();
     }
 

@@ -140,6 +140,7 @@ public class Account extends AppCompatActivity {
     }
 
     private void openInitialConfig() {
+        runOnUiThread(() -> detect_button.setEnabled(true));
         Intent initConf = new Intent( this, InitialConfiguration.class );
         initConf.putExtra( "USERNAME", user.getName() );
         startActivity( initConf );
@@ -193,6 +194,19 @@ public class Account extends AppCompatActivity {
         ((MyApplication) this.getApplication()).setNetworkTask();
         networktask = ((MyApplication) this.getApplication()).getNetworktask();
         getCategories(user.getPreferences());
+        boolean restartDetect = ((MyApplication) this.getApplication()).getRestartDetect();
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if(restartDetect){
+                ((MyApplication) this.getApplication()).setRestartDetect(false);
+                detect_button.callOnClick();
+            }
+        }).start();
+
     }
 
     public void getCategories(List<Integer> catId){

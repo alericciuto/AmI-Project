@@ -38,7 +38,7 @@ public class MusicPostConversation extends AppCompatActivity {
 
         //CODICE PER TORNARE ALL'ATTIVITA' PRINCIPALE
         //MusicPostConversation.super.onBackPressed();
-        ((MyApplication) this.getApplication()).setRestartDetect(true);
+        ((MyApplication) this.getApplication()).setStartLocation(true);
         this.finish();
     }
 }

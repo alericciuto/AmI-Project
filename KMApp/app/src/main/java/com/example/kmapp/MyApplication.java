@@ -9,6 +9,17 @@ public class MyApplication extends Application {
     private DatabaseAccess databaseAccess;
     private NetworkTask networktask;
     private boolean restartDetect = false;
+    private boolean startLocation = false;
+
+    public boolean getStartLocation() {
+        return startLocation;
+    }
+
+    public void setStartLocation(boolean startLocation) {
+        this.startLocation = startLocation;
+    }
+
+
 
     public boolean getRestartDetect() {
         return restartDetect;

@@ -16,7 +16,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 
-public class NearbyPlaces extends AsyncTask<Void, Void, String> {
+public class NearbyPlaces extends AsyncTask<Void, Void, Void> {
         private String lat = "";
         private String longt = "";
         private String data = "";
@@ -30,12 +30,15 @@ public class NearbyPlaces extends AsyncTask<Void, Void, String> {
         this.tracker = tracker;
         this.latitude = this.tracker.getLatitude();
         this.longitude = this.tracker.getLongitude();
+        lat = Double.toString(latitude);
+        longt = Double.toString(longitude);
     }
 
     @Override
-        protected String doInBackground(Void... voids) {
+        protected Void doInBackground(Void... voids) {
         this.isDone = false;
             try {
+                while(lat.compareTo("")==0 || longt.compareTo("")==0){}
                 URL url = new URL("https://graph.facebook.com/v3.2/search?type=place&center="
                         + latitude.toString() + "," + longitude.toString() + "&distance=2000" +
                         "&q=hotel&fields=name&limit=3&access_token=EAAFtMJbfTIYBAAQwEh" +
@@ -72,12 +75,12 @@ public class NearbyPlaces extends AsyncTask<Void, Void, String> {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            return this.dataParsed;
+            return null;
         }
 
         @Override
-        protected void onPostExecute(String data) {
-            super.onPostExecute(data);
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
             //Toast.makeText(getApplicationContext(),dataParsed, Toast.LENGTH_LONG).show();
             //handleExit(dataParsed);
             this.isDone = true;

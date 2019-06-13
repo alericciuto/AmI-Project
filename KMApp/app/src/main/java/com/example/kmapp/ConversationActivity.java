@@ -297,7 +297,8 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         if(((MyApplication) this.getApplication()).getStartLocation()){
             ((MyApplication) this.getApplication()).setStartLocation(false);
             //FUNZIONI DI MODIFICA LAT E LONG
-            NearbyPlaces placesToRest = new NearbyPlaces( new GpsTracker( getApplicationContext() ) );
+            GpsTracker tracker = new GpsTracker(getApplicationContext());
+            NearbyPlaces placesToRest = new NearbyPlaces(tracker);
             placesToRest.execute();
             while(!placesToRest.isDone());
             handleExit(placesToRest.getDataParsed());

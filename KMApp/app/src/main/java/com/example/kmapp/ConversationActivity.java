@@ -263,7 +263,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         }
         else{
             speech_error_limiter= speech_error_limiter+1;
-            final String reply = error.toString();
+            final String reply = "Speech input error.";
             final Handler a = new Handler();
             a.post(new Runnable() {
                 @Override
@@ -317,8 +317,8 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
 
 
     public class fetchMeteoData extends AsyncTask<Void,Void,Void> {
-        String data ="";
-        String dataParsed = "";
+        StringBuilder data = new StringBuilder();
+        StringBuilder dataParsed = new StringBuilder();
         @Override
         protected Void doInBackground(Void... voids) {
             try {
@@ -330,10 +330,10 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                 String line = "";
                 while(line != null){
                     line = bufferedReader.readLine();
-                    data = data + line;
+                    data.append(line);
                 }
 
-                JSONObject jo = new JSONObject(data);
+                JSONObject jo = new JSONObject(data.toString());
 
                 JSONObject tmp_main = ((JSONObject) jo.get("main"));
                 Double temp = (Double)tmp_main.get("temp") - 273.15;
@@ -342,11 +342,11 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
 
                 JSONObject tmp_weather = ((JSONArray) jo.get("weather")).getJSONObject(0);
 
-                dataParsed = "In " + city + " the weather is caracterized by " + tmp_weather.get("description") + "\n" +
+                dataParsed.append("In " + city + " the weather is caracterized by " + tmp_weather.get("description") + "\n" +
                         "Currently there are : " + String.format("%.0f", temp) +" grades" + "\n" +
                         "The minimum temperature is : " + String.format("%.0f", tempMin) +" grades" + "\n" +
                         "The maximum temperature is : " + String.format("%.0f", tempMax) +" grades" + "\n" +
-                        "Do you want to do something else?";
+                        "Do you want to do something else?");
 
             } catch (MalformedURLException e) {
                 e.printStackTrace();
@@ -362,13 +362,13 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            handleResult(dataParsed);
+            handleResult(dataParsed.toString());
         }
     }
 
     public class fetchNewsData extends AsyncTask<Void,Void,Void> {
-        String data ="";
-        String dataParsed = "";
+        StringBuilder data = new StringBuilder();
+        StringBuilder dataParsed = new StringBuilder();
         @Override
         protected Void doInBackground(Void... voids) {
             try {
@@ -380,10 +380,10 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                 String line = "";
                 while(line != null){
                     line = bufferedReader.readLine();
-                    data = data + line;
+                    data.append(line);
                 }
 
-                JSONObject jo = new JSONObject(data);
+                JSONObject jo = new JSONObject(data.toString());
 
                 JSONArray art = (JSONArray)jo.get("articles");
                 int totRes = art.length();
@@ -392,10 +392,10 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                 String description = (String)article.get("description");
                 String j = (String)((JSONObject)article.get("source")).get("name");
                 String[] des = description.split("\\. ");
-                dataParsed = (String)article.get("title") + "\n" +
+                dataParsed.append( (String)article.get("title") + "\n" +
                         des[0] + "\n" +
                         "To continue go to: " + "\n" + (String)((JSONObject)article.get("source")).get("name") + "\n" +
-                        "Do you want to do something else?";
+                        "Do you want to do something else?");
 
             } catch (MalformedURLException e) {
                 e.printStackTrace();
@@ -411,7 +411,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            handleResult(dataParsed);
+            handleResult(dataParsed.toString());
         }
     }
 

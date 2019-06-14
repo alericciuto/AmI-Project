@@ -259,6 +259,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         if(speech_error_limiter==1){
             Intent intent = new Intent(this, MusicPostConversation.class);
             startActivity(intent);
+            this.finish();
         }
         else{
             speech_error_limiter= speech_error_limiter+1;
@@ -293,7 +294,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     public void onResume(){
         super.onResume();
 
-        setContentView(R.layout.activity_conversation);
+        /*setContentView(R.layout.activity_conversation);
 
         recyclerView = findViewById(R.id.recyclerView);
         responseMessageList = new ArrayList<>();
@@ -308,8 +309,9 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
             while(!placesToRest.isDone());
             String places = placesToRest.getDataParsed();
             handleExit(places);
-        }
+        }*/
     }
+
     @Override
     public void onListeningStarted() {}
     @Override

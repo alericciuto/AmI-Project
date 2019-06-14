@@ -51,8 +51,6 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     private int conv_progress = 0;
     private int false_end=0;
     private String news = "";
-    private String lat = "";
-    private String longt = "";
 
     private RecyclerView recyclerView;
     List<ResponseMessage2> responseMessageList;
@@ -294,14 +292,22 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     @Override
     public void onResume(){
         super.onResume();
+
+        setContentView(R.layout.activity_conversation);
+
+        recyclerView = findViewById(R.id.recyclerView);
+        responseMessageList = new ArrayList<>();
+        messageAdapter = new MessageAdapter(responseMessageList, this);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false));
+        recyclerView.setAdapter(messageAdapter);
+
         if(((MyApplication) this.getApplication()).getStartLocation()){
             ((MyApplication) this.getApplication()).setStartLocation(false);
-            //FUNZIONI DI MODIFICA LAT E LONG
             NearbyPlaces placesToRest = new NearbyPlaces( new GpsTracker( getApplicationContext() ) );
             placesToRest.execute();
             while(!placesToRest.isDone());
-            handleExit(placesToRest.getDataParsed());
-
+            String places = placesToRest.getDataParsed();
+            handleExit(places);
         }
     }
     @Override

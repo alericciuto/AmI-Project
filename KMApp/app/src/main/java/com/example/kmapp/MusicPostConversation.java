@@ -35,8 +35,6 @@ public class MusicPostConversation extends AppCompatActivity {
     public void stopMusicOnClick(final View view){
         songPlayer.stop();
         audio.setStreamVolume(AudioManager.STREAM_MUSIC, actualVolume, AudioManager.FLAG_PLAY_SOUND);
-
-        //CODICE PER TORNARE ALL'ATTIVITA' PRINCIPALE
         //MusicPostConversation.super.onBackPressed();
         ((MyApplication) this.getApplication()).setStartLocation(true);
         this.finish();

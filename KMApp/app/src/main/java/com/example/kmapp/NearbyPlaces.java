@@ -1,9 +1,7 @@
 package com.example.kmapp;
 
-import android.annotation.SuppressLint;
+
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,7 +77,6 @@ public class NearbyPlaces extends AsyncTask<Void, Void, String> {
         protected void onPostExecute(String data) {
             super.onPostExecute(data);
             //Toast.makeText(getApplicationContext(),dataParsed, Toast.LENGTH_LONG).show();
-            //handleExit(dataParsed);
             this.isDone = true;
         }
 

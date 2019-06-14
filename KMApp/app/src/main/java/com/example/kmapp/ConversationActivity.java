@@ -259,7 +259,7 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
         if(speech_error_limiter==1){
             Intent intent = new Intent(this, MusicPostConversation.class);
             startActivity(intent);
-            this.finish();
+            //this.finish();
         }
         else{
             speech_error_limiter= speech_error_limiter+1;
@@ -294,22 +294,16 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     public void onResume(){
         super.onResume();
 
-        /*setContentView(R.layout.activity_conversation);
-
-        recyclerView = findViewById(R.id.recyclerView);
-        responseMessageList = new ArrayList<>();
-        messageAdapter = new MessageAdapter(responseMessageList, this);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false));
-        recyclerView.setAdapter(messageAdapter);
-
         if(((MyApplication) this.getApplication()).getStartLocation()){
             ((MyApplication) this.getApplication()).setStartLocation(false);
             NearbyPlaces placesToRest = new NearbyPlaces( new GpsTracker( getApplicationContext() ) );
             placesToRest.execute();
+
             while(!placesToRest.isDone());
             String places = placesToRest.getDataParsed();
             handleExit(places);
-        }*/
+
+        }
     }
 
     @Override

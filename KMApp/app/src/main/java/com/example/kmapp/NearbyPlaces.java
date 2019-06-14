@@ -14,11 +14,11 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 
-public class NearbyPlaces extends AsyncTask<Void, Void, Void> {
+public class NearbyPlaces extends AsyncTask<Void, Void, String> {
         private String lat = "";
         private String longt = "";
-        private String data = "";
-        private String dataParsed = "";
+        private StringBuilder data;
+        private StringBuilder dataParsed;
         private GpsTracker tracker;
         private Double latitude;
         private Double longitude;
@@ -28,14 +28,16 @@ public class NearbyPlaces extends AsyncTask<Void, Void, Void> {
 
     public NearbyPlaces(GpsTracker tracker) {
         this.tracker = tracker;
-        this.latitude = this.tracker.getLatitude();
-        this.longitude = this.tracker.getLongitude();
-        this.token="EAAEYNwZC2cb0BAETNk5iu2vExX7usAfGH6TZAv4rsE0ner27xrFupy9XyBe4Nv6qFPTlMIJZAZCEcP71ayR7dp7AZA5Xnuzxm72p6KEPeXbZAokY5yljxkQXQCn6MUsHrhoS90uvCZAJSNYL1E5epbjFmvWpZBNIey9ZBp9bK6OzqxcgyzfNZAx1ZCZBlCAv8NsFJyvWHRDZBjMmCgZAzZB6o6vqNaw0GvxfK7XOOQZD";
+        this.latitude = tracker.getLatitude();
+        this.longitude = tracker.getLongitude();
+        this.token = "EAAEYNwZC2cb0BALolPZAfzyhca8eE7ZCIDgmzaN6ndZCW6FJD1x9MmgLCL5ZBGHxLZC3njMVFBbg0ZAbSCWBQZBKXvCdZBRoFKo5FWGM7bNXM0HNZBjNrL51aeKHEnbmwSDNNmLZBu2puCICdYereK1WgQCyUQbLg50RbRKrTHHbSaGbeg30qNYWFGR2ZCeR5LcuBlM9zxC3CiPc8x6DWxhEoKToeEZAFrA6cZCfIZD";
         this.distance = 2000;
+        this.dataParsed = new StringBuilder();
+        this.data = new StringBuilder();
     }
 
     @Override
-        protected Void doInBackground(Void... voids) {
+        protected String doInBackground(Void... voids) {
         this.isDone = false;
             try {
                 URL url = new URL("https://graph.facebook.com/v3.2/search?type=place&center="
@@ -48,19 +50,19 @@ public class NearbyPlaces extends AsyncTask<Void, Void, Void> {
                 String line = "";
                 while (line != null) {
                     line = bufferedReader.readLine();
-                    data = data + line;
+                    data = data.append(line);
                 }
 
-                JSONObject jo = new JSONObject(data);
+                JSONObject jo = new JSONObject(data.toString());
                 JSONArray data = (JSONArray) jo.get("data");
                 JSONObject singleData;
                 int a= data.length();
                 String name;
-                dataParsed = "You're attention span is decreasing really fast! I suggest you to rest. These are the hotel in a range of 2000 meters:";
+                dataParsed = dataParsed.append("You're attention span is decreasing really fast! I suggest you to rest. These are the hotel in a range of 2000 meters:");
                 for (int j = 0; j < data.length(); j++) {
                     singleData = data.getJSONObject(j);
                     name = (String) singleData.get("name");
-                    dataParsed = dataParsed + "\n"+ String.valueOf(j+1) +". " + name;
+                    dataParsed = dataParsed.append("\n"+ String.valueOf(j+1) +". " + name);
                     //System.out.println(dataParsed);
                 }
 
@@ -72,18 +74,13 @@ public class NearbyPlaces extends AsyncTask<Void, Void, Void> {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            return null;
+            this.isDone = true;
+            return dataParsed.toString();
         }
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            //Toast.makeText(getApplicationContext(),dataParsed, Toast.LENGTH_LONG).show();
-            this.isDone = true;
-        }
 
     public String getDataParsed() {
-        return dataParsed;
+        return dataParsed.toString();
     }
 
     public boolean isDone() {

@@ -172,12 +172,12 @@
 
     <ListView
         android:id="@+id/preferences"
-        android:layout_width="326dp"
-        android:layout_height="110dp"
+        android:layout_width="0dp"
+        android:layout_height="273dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="52dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="10dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/conv_button"
         app:layout_constraintEnd_toEndOf="parent"

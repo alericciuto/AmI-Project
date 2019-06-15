@@ -2,6 +2,8 @@ package com.example.kmapp;
 
 
 import android.os.AsyncTask;
+
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,6 +27,7 @@ public class NearbyPlaces extends AsyncTask<Void, Void, String> {
         private boolean isDone;
         private String token;
         private int distance;
+        private int numberOfResults;
 
     public NearbyPlaces(GpsTracker tracker) {
         this.tracker = tracker;
@@ -34,6 +37,8 @@ public class NearbyPlaces extends AsyncTask<Void, Void, String> {
         this.distance = 2000;
         this.dataParsed = new StringBuilder();
         this.data = new StringBuilder();
+        this.numberOfResults = 3;
+
     }
 
     @Override
@@ -42,7 +47,7 @@ public class NearbyPlaces extends AsyncTask<Void, Void, String> {
             try {
                 URL url = new URL("https://graph.facebook.com/v3.2/search?type=place&center="
                         + latitude.toString() + "," + longitude.toString() + "&distance="+this.distance +
-                        "&q=hotel&fields=name&limit=3&access_token=" + this.token);
+                        "&q=hotel&fields=name&limit="+ this.numberOfResults +"&access_token=" + this.token);
 
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 InputStream inputStream = httpURLConnection.getInputStream();
@@ -87,7 +92,4 @@ public class NearbyPlaces extends AsyncTask<Void, Void, String> {
         return isDone;
     }
 
-    public void setDone(boolean done) {
-        isDone = done;
-    }
 }

@@ -18,7 +18,7 @@ def detect():
             print("\nThe driver is asleep,")
             print("The server is going to wake up him!")
             driver.sound_on()
-            #logi_wheel.make_wheel_vibrate()
+            logi_wheel.make_wheel_vibrate()
             print("## Sound stimolation started ##")
             print("## Vibration                 ##")
             print("Waiting for stopping sound stimolation and vibration...")
@@ -28,7 +28,7 @@ def detect():
                 driver.set_previous_status("awake")
                 print("but he is going to restore his attention")
                 driver.sound_off()
-                #logi_wheel.make_wheel_stop()
+                logi_wheel.make_wheel_stop()
                 print("## Sound stimolation stopped ##")
                 print("## Vibration stopped         ##")
             else:
@@ -43,15 +43,15 @@ def detect():
             print("The server is going to stop sound stimolation!")
             driver.sound_off()
             print("## Sound stimolation stopped ##")
-            # if logi_wheel.is_vibrating():
-            #     print("Stopping vibration")
-            #     logi_wheel.make_wheel_stop()
-            #     print("## Vibration stopped         ##")
+             if logi_wheel.is_vibrating():
+                 print("Stopping vibration")
+                 logi_wheel.make_wheel_stop()
+                 print("## Vibration stopped         ##")
         main_event.release()
 
 
 logi_wheel = Wheel()
-#logi_wheel.wait_wheel()
+logi_wheel.wait_wheel()
 
 driver = Status()
 driver.start_listener()

@@ -17,8 +17,6 @@ import java.io.InputStreamReader;
 
 
 public class NearbyPlaces extends AsyncTask<Void, Void, String> {
-        private String lat = "";
-        private String longt = "";
         private StringBuilder data;
         private StringBuilder dataParsed;
         private GpsTracker tracker;
@@ -33,12 +31,11 @@ public class NearbyPlaces extends AsyncTask<Void, Void, String> {
         this.tracker = tracker;
         this.latitude = tracker.getLatitude();
         this.longitude = tracker.getLongitude();
-        this.token = "EAAEYNwZC2cb0BALolPZAfzyhca8eE7ZCIDgmzaN6ndZCW6FJD1x9MmgLCL5ZBGHxLZC3njMVFBbg0ZAbSCWBQZBKXvCdZBRoFKo5FWGM7bNXM0HNZBjNrL51aeKHEnbmwSDNNmLZBu2puCICdYereK1WgQCyUQbLg50RbRKrTHHbSaGbeg30qNYWFGR2ZCeR5LcuBlM9zxC3CiPc8x6DWxhEoKToeEZAFrA6cZCfIZD";
+        this.token = "EAAEYNwZC2cb0BABswFypKJzlpqL4ouRZCZA1Bn7vxWDLtZBZBhkMZBZCZARoHZCknXYkpnQzwPWBfD0ZArup5ZAD0Rv42tlTs2CXbrs5OO1ZBirriyCne57qieZBd5CKTm4emor4cCtP7BSIjLxWL1fsaOP80EsRIZB4KsGlpSydMcZBXPxLS7TypUl2LEWoOVlIZByZC9ZA6tNdG1clveHKA0rnUt9HrlG7Uq2lPPaocZD";
         this.distance = 2000;
         this.dataParsed = new StringBuilder();
         this.data = new StringBuilder();
         this.numberOfResults = 3;
-
     }
 
     @Override
@@ -68,7 +65,6 @@ public class NearbyPlaces extends AsyncTask<Void, Void, String> {
                     singleData = data.getJSONObject(j);
                     name = (String) singleData.get("name");
                     dataParsed = dataParsed.append("\n"+ String.valueOf(j+1) +". " + name);
-                    //System.out.println(dataParsed);
                 }
 
 

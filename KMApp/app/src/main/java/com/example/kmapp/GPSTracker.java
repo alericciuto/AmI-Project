@@ -19,15 +19,12 @@ import android.util.Log;
 
 class GpsTracker extends Service implements LocationListener {
     private final Context mContext;
-    // flag for GPS status
     boolean isGPSEnabled = false;
-    // flag for network status
     boolean isNetworkEnabled = false;
-    // flag for GPS status
     boolean canGetLocation = false;
-    Location location; // location
-    double latitude; // latitude
-    double longitude; // longitude
+    Location location;
+    double latitude;
+    double longitude;
     // The minimum distance to change Updates in meters
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
     // The minimum time between updates in milliseconds

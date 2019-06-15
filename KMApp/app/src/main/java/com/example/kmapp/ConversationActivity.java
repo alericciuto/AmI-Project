@@ -47,10 +47,10 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     private int conversation_enable=0;
     private int speech_error_limiter;
     private TextToSpeech TTS;
-    public String city = "";
+    private String city = "";
+    private String arg = "";
     private int conv_progress = 0;
     private int false_end=0;
-    private String news = "";
 
     private RecyclerView recyclerView;
     List<ResponseMessage2> responseMessageList;
@@ -97,8 +97,6 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     }
 
     public void onResult(final AIResponse response) {
-        city = "";
-        news = "";
         speech_error_limiter = 0;
         false_end = 0;
         Result result = response.getResult();
@@ -150,8 +148,13 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                     city = result.getFulfillment().getSpeech();
                     conv_progress = conv_progress + 1;
                     false_end = 0;
-                    fetchMeteoData p = new fetchMeteoData();
-                    p.execute();
+                    Meteo meteo = new Meteo(new StringBuilder(), new StringBuilder(), city);
+                    meteo.execute();
+
+                    while(!meteo.isReady());
+
+                    handleResult( meteo.getDataParsed() );
+                    meteo.setReady( false );
                 }
             }
             else if (result.getAction().compareTo("choiceNews") == 0) {
@@ -159,11 +162,16 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                     handleResult("You have to specify the topic");
                 }
                 else{
-                    news = result.getFulfillment().getSpeech();
+                    arg = result.getFulfillment().getSpeech();
                     conv_progress = conv_progress + 1;
                     false_end = 0;
-                    fetchNewsData p = new fetchNewsData();
-                    p.execute();
+                    News news = new News(new StringBuilder(), new StringBuilder(), arg);
+                    news.execute();
+
+                    while(!news.isReady());
+
+                    handleResult( news.getDataParsed() );
+                    news.setReady( false );
                 }
             }
             else {
@@ -314,106 +322,6 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
     public void onListeningFinished() {}
     @Override
     public void onAudioLevel(final float level) {}
-
-
-    public class fetchMeteoData extends AsyncTask<Void,Void,Void> {
-        StringBuilder data = new StringBuilder();
-        StringBuilder dataParsed = new StringBuilder();
-        @Override
-        protected Void doInBackground(Void... voids) {
-            try {
-                while(city.compareTo("")==0){}
-                URL url = new URL("http://api.openweathermap.org/data/2.5/weather?q="+city.replace(" ", "%20")+"&APPID=5b223f593e42fa8af1b7229cdd7e3f23");
-                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-                InputStream inputStream = httpURLConnection.getInputStream();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                String line = "";
-                while(line != null){
-                    line = bufferedReader.readLine();
-                    data.append(line);
-                }
-
-                JSONObject jo = new JSONObject(data.toString());
-
-                JSONObject tmp_main = ((JSONObject) jo.get("main"));
-                Double temp = (Double)tmp_main.get("temp") - 273.15;
-                Double tempMin = (Double)tmp_main.get("temp_min") - 273.15;
-                Double tempMax = (Double)tmp_main.get("temp_max") - 273.15;
-
-                JSONObject tmp_weather = ((JSONArray) jo.get("weather")).getJSONObject(0);
-
-                dataParsed.append("In " + city + " the weather is caracterized by " + tmp_weather.get("description") + "\n" +
-                        "Currently there are : " + String.format("%.0f", temp) +" grades" + "\n" +
-                        "The minimum temperature is : " + String.format("%.0f", tempMin) +" grades" + "\n" +
-                        "The maximum temperature is : " + String.format("%.0f", tempMax) +" grades" + "\n" +
-                        "Do you want to do something else?");
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            handleResult(dataParsed.toString());
-        }
-    }
-
-    public class fetchNewsData extends AsyncTask<Void,Void,Void> {
-        StringBuilder data = new StringBuilder();
-        StringBuilder dataParsed = new StringBuilder();
-        @Override
-        protected Void doInBackground(Void... voids) {
-            try {
-                while(news.compareTo("")==0){}
-                URL url = new URL("https://newsapi.org/v2/everything?q=" + news.replace(" ", "%20") + "&sortBy=popularity&apiKey=3dc5347cbb25465885aab935b3aae6c0");
-                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-                InputStream inputStream = httpURLConnection.getInputStream();
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                String line = "";
-                while(line != null){
-                    line = bufferedReader.readLine();
-                    data.append(line);
-                }
-
-                JSONObject jo = new JSONObject(data.toString());
-
-                JSONArray art = (JSONArray)jo.get("articles");
-                int totRes = art.length();
-                int num_article = (int)(Math.random()*totRes);
-                JSONObject article = ((JSONArray) jo.get("articles")).getJSONObject(num_article);
-                String description = (String)article.get("description");
-                String j = (String)((JSONObject)article.get("source")).get("name");
-                String[] des = description.split("\\. ");
-                dataParsed.append( (String)article.get("title") + "\n" +
-                        des[0] + "\n" +
-                        "To continue go to: " + "\n" + (String)((JSONObject)article.get("source")).get("name") + "\n" +
-                        "Do you want to do something else?");
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            handleResult(dataParsed.toString());
-        }
-    }
 
 
 }

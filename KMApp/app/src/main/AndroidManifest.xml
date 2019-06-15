@@ -21,6 +21,7 @@
         android:usesCleartextTraffic="true">
         <activity android:name=".MusicPostConversation" />
         <activity android:name=".ConversationActivity" />
+        <service android:name=".GpsTracker"/>
         <activity android:name=".Account" />
         <activity android:name=".Delete_Account" />
         <activity android:name=".New_Account" />

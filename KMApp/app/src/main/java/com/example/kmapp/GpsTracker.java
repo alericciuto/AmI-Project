@@ -17,8 +17,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
-class GpsTracker extends Service implements LocationListener {
-    private final Context mContext;
+public class GpsTracker extends Service implements LocationListener {
+    private Context mContext;
     boolean isGPSEnabled = false;
     boolean isNetworkEnabled = false;
     boolean canGetLocation = false;
@@ -31,6 +31,8 @@ class GpsTracker extends Service implements LocationListener {
     private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1 minute
     // Declaring a Location Manager
     protected LocationManager locationManager;
+
+    public GpsTracker(){}
 
     public GpsTracker(Context context) {
         this.mContext = context;

@@ -22,7 +22,7 @@ public class NetworkTask extends AsyncTask<Void, byte[], Boolean> {
     private OutputStream nos; //Network Output Stream
     private JSONObject json;
 
-    private String HOST = "192.168.0.14";
+    private String HOST = "192.168.1.85";
     private int PORT = 8563;
 
 
@@ -38,7 +38,7 @@ public class NetworkTask extends AsyncTask<Void, byte[], Boolean> {
             Log.i("NetworkTask", "doInBackground: Creating socket");
             SocketAddress sockaddr = new InetSocketAddress( HOST, PORT );
             socket = new Socket();
-            socket.connect(sockaddr, 1); //10 second connection timeout
+            socket.connect(sockaddr, 2000); //10 second connection timeout
             if (socket.isConnected()) {
                 nis = socket.getInputStream();
                 nos = socket.getOutputStream();

@@ -33,6 +33,7 @@ public class New_Account extends AppCompatActivity {
     private ProgressBar pg;
     private TextView title;
     private User user;
+    private boolean categoriesLoaded;
 
     private FirebaseDatabase firebase;
     private DatabaseReference db_categories;
@@ -69,6 +70,7 @@ public class New_Account extends AppCompatActivity {
         assert actionBar != null;
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        categoriesLoaded = false;
         firebase = FirebaseDatabase.getInstance();
         adapter = new CategoriesAdapter(getApplicationContext(), readCategories());
         mListView.setAdapter( adapter );
@@ -92,6 +94,10 @@ public class New_Account extends AppCompatActivity {
         });
 
         confirm_button.setOnClickListener(v -> {
+            if(!categoriesLoaded){
+                runOnUiThread(() -> Toast.makeText(getApplicationContext(),"No Internet Connection\nTry again",Toast.LENGTH_SHORT).show());
+                return;
+            }
             name = editName.getText().toString().trim();
             if(name.equals(""))
                 runOnUiThread(() -> Toast.makeText(getApplicationContext(),"Username is necessary!",Toast.LENGTH_SHORT).show());
@@ -150,6 +156,7 @@ public class New_Account extends AppCompatActivity {
                     array.add(cat);
                 }
                 pg.setVisibility(View.GONE);
+                categoriesLoaded = true;
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {

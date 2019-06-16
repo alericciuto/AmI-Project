@@ -26,16 +26,18 @@ public class NearbyPlaces extends AsyncTask<Void, Void, String> {
         private String token;
         private int distance;
         private int numberOfResults;
+        private String placeToFind;
 
     public NearbyPlaces(GpsTracker tracker) {
         this.tracker = tracker;
         this.latitude = tracker.getLatitude();
         this.longitude = tracker.getLongitude();
-        this.token = "EAAEYNwZC2cb0BABswFypKJzlpqL4ouRZCZA1Bn7vxWDLtZBZBhkMZBZCZARoHZCknXYkpnQzwPWBfD0ZArup5ZAD0Rv42tlTs2CXbrs5OO1ZBirriyCne57qieZBd5CKTm4emor4cCtP7BSIjLxWL1fsaOP80EsRIZB4KsGlpSydMcZBXPxLS7TypUl2LEWoOVlIZByZC9ZA6tNdG1clveHKA0rnUt9HrlG7Uq2lPPaocZD";
+        this.token = "EAAEYNwZC2cb0BAGrZAacIcVZCwRHd1IYse0WZA5o3gBRR8xuuobajq5aSYdxTvTACGgZBoXfOqoeoJRTKRndEPAz4wYKYQ5QW24KMNwk47kn3yDTZBKUbAU8RLA5myTbJwcw8xMCJyOhwvDnL5eY59HUvDssk0dOvyRCKDSsI9zzdjpPOkaItSULe9q0Dq7P4ZCtRmzT2ovZCWj71o3sLczmBWDibhetONMZD";
         this.distance = 2000;
         this.dataParsed = new StringBuilder();
         this.data = new StringBuilder();
         this.numberOfResults = 3;
+        this.placeToFind = "hotel";
     }
 
     @Override
@@ -44,7 +46,7 @@ public class NearbyPlaces extends AsyncTask<Void, Void, String> {
             try {
                 URL url = new URL("https://graph.facebook.com/v3.2/search?type=place&center="
                         + latitude.toString() + "," + longitude.toString() + "&distance="+this.distance +
-                        "&q=hotel&fields=name&limit="+ this.numberOfResults +"&access_token=" + this.token);
+                        "&q="+this.placeToFind+"&fields=name&limit="+ this.numberOfResults +"&access_token=" + this.token);
 
                 HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
                 InputStream inputStream = httpURLConnection.getInputStream();
@@ -77,7 +79,7 @@ public class NearbyPlaces extends AsyncTask<Void, Void, String> {
             }
             this.isDone = true;
             return dataParsed.toString();
-        }
+    }
 
 
     public String getDataParsed() {

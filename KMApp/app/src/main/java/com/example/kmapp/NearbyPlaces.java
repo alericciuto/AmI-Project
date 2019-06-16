@@ -2,8 +2,6 @@ package com.example.kmapp;
 
 
 import android.os.AsyncTask;
-
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,7 +30,7 @@ public class NearbyPlaces extends AsyncTask<Void, Void, String> {
         this.tracker = tracker;
         this.latitude = tracker.getLatitude();
         this.longitude = tracker.getLongitude();
-        this.token = "EAAEYNwZC2cb0BAGrZAacIcVZCwRHd1IYse0WZA5o3gBRR8xuuobajq5aSYdxTvTACGgZBoXfOqoeoJRTKRndEPAz4wYKYQ5QW24KMNwk47kn3yDTZBKUbAU8RLA5myTbJwcw8xMCJyOhwvDnL5eY59HUvDssk0dOvyRCKDSsI9zzdjpPOkaItSULe9q0Dq7P4ZCtRmzT2ovZCWj71o3sLczmBWDibhetONMZD";
+        this.token = "EAAhTajMYv1EBAOe9rt6doQANSr4SyIn7Xbmw0YcmFpX2UaZCnyip67yGXsDbkVfk5tCdZCEql1eL1XZAVt0zrZBmQPmT3GzufsDZABbM5ntOjdHDTF2IWFG5iZAU3tZBKJ1Vssb99x9ZBVIhLw41XNaqxl0H7xIZCTTmiFzruZA5WYIsZCmtCzYtxZCK";
         this.distance = 2000;
         this.dataParsed = new StringBuilder();
         this.data = new StringBuilder();

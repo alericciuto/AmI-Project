@@ -60,7 +60,7 @@ public class NearbyPlaces extends AsyncTask<Void, Void, String> {
                 JSONObject singleData;
                 int a= data.length();
                 String name;
-                dataParsed = dataParsed.append("You're attention span is decreasing really fast! I suggest you to rest. These are the hotel in a range of 2000 meters:");
+                dataParsed = dataParsed.append("You're attention span is decreasing really fast! I suggest you to rest. These are the " + this.placeToFind + " in a range of " + this.distance + " meters:");
                 for (int j = 0; j < data.length(); j++) {
                     singleData = data.getJSONObject(j);
                     name = (String) singleData.get("name");

@@ -94,7 +94,14 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     agent.add(news);
   }
   function handleWelcome(agent){
-    agent.add(`Hi, here is what you can ask me:` + "\n"+ `1.    let's have a trivia`+ "\n"+ `2.    weather of "city"` + "\n"+ `3.    news about "something"`);
+    return admin.database().ref('userInfo').once("value").then((snapshot) => {
+      var name = snapshot.child("name").val();
+      agent.add(`Hi ` + name + `, here is what you can ask me:` + "\n"+
+                `1.    Let's have a trivia`+ "\n" + 
+                `2.    Weather of a city` + "\n" + 
+                `3.    News about something` + "\n" +
+                `4.    End this conversation`);
+    });
   }
   // Run the proper function handler based on the matched Dialogflow intent name
   let intentMap = new Map();

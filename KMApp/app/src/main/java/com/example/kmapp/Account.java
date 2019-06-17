@@ -71,6 +71,7 @@ public class Account extends AppCompatActivity {
         String buffer = databaseAccess.getPreferences(userName);
         db_user = firebase.getReference("userInfo");
         db_user.child("prefInfo").setValue(buffer);
+        db_user.child("name").setValue(userName);
         user = databaseAccess.getUser(userName);
 
         mp = MediaPlayer.create(getApplicationContext(), R.raw.alarm_sleeping);

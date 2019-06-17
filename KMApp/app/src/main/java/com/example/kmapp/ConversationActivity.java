@@ -184,14 +184,14 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                 String reply;
                 if (result.getFulfillment().getSpeech().compareTo("") != 0) {
                     sb.add(result.getFulfillment().getSpeech());
-                    reply = sb.toString();
+                    reply = sb.stream().collect(Collectors.joining("\n"));
                 } else {
                     int l = result.getFulfillment().getMessages().size();
                     for (int i = 0; i < l; i++) {
                         r = (ResponseMessage.ResponseSpeech) result.getFulfillment().getMessages().get(i);
                         sb.addAll(r.getSpeech());
                     }
-                    reply = sb.stream().collect(Collectors.joining("\n"));;
+                    reply = sb.stream().collect(Collectors.joining("\n"));
                 }
 
                 handleResult(reply);

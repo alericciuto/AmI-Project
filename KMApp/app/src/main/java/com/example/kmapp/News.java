@@ -30,7 +30,7 @@ public class News extends AsyncTask<Void,Void,String> {
     protected String doInBackground(Void... voids) {
         try {
             while(news.compareTo("")==0){}
-            URL url = new URL("https://newsapi.org/v2/everything?q=" + news.replace(" ", "%20") + "&sortBy=popularity&apiKey=3dc5347cbb25465885aab935b3aae6c0");
+            URL url = new URL("https://newsapi.org/v2/everything?q=" + news.replace(" ", "%20") + "&sortBy=relevancy&apiKey=3dc5347cbb25465885aab935b3aae6c0");
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
             InputStream inputStream = httpURLConnection.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));

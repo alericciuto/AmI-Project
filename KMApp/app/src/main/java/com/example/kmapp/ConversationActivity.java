@@ -174,6 +174,13 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                     news.setReady( false );
                 }
             }
+            //gestire da DIALOGFLOW
+            //e inserire nell'elenco di features: PUT SOME MUSIC ON (frase che dovrà dire l'utente)
+            else if(result.getAction().compareTo("choiceMusic") == 0){
+                ((MyApplication) this.getApplication()).setMusicBack(true);
+                Intent intent = new Intent(this, Player.class);
+                startActivity(intent);
+            }
             else {
                 if (result.getAction().compareTo("choiceTrivia") == 0) {
                     conv_progress = conv_progress+1;
@@ -311,6 +318,11 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
             String places = placesToRest.getDataParsed();
             handleExit(places);
 
+        }
+        else if(((MyApplication) this.getApplication()).getMusicBack()){
+            //da mettere "Do you want to do something else?"
+            //e far ripartire la registrazione
+            ((MyApplication) this.getApplication()).setMusicBack(false);
         }
     }
 

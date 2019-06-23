@@ -10,6 +10,7 @@ public class MyApplication extends Application {
     private NetworkTask networktask;
     private boolean restartDetect = false;
     private boolean startLocation = false;
+    private boolean musicBack = false;
 
     public boolean getStartLocation() {
         return startLocation;
@@ -57,5 +58,12 @@ public class MyApplication extends Application {
     }
 
 
+    public boolean getMusicBack() {
+        return musicBack;
+    }
+
+    public void setMusicBack(boolean musicBack) {
+        this.musicBack=musicBack;
+    }
 }
 

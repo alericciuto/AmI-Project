@@ -175,6 +175,8 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
                 }
             }
             else if(result.getAction().compareTo("choiceMusic") == 0){
+                conv_progress = conv_progress + 1;
+                false_end = 0;
                 ((MyApplication) this.getApplication()).setMusicBack(true);
                 Intent intent = new Intent(this, Player.class);
                 startActivity(intent);
@@ -318,9 +320,8 @@ public class ConversationActivity extends AppCompatActivity implements AIListene
 
         }
         else if(((MyApplication) this.getApplication()).getMusicBack()){
-            handleResult( "What else can I do for you?" );
-            //e far ripartire la registrazione
             ((MyApplication) this.getApplication()).setMusicBack(false);
+            handleResult( "What else can I do for you?" );
         }
     }
 

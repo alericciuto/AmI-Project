@@ -93,22 +93,31 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
     const news = agent.parameters.news;
     agent.add(news);
   }
+  function handleMusic(agent){
+    agent.add("Music Player");
+  }
   function handleWelcome(agent){
     return admin.database().ref('userInfo').once("value").then((snapshot) => {
       var name = snapshot.child("name").val();
-      agent.add(`Hi ` + name + `, here is what you can ask me:` + "\n"+
+      agent.add(`Hi ` + name + `, what can I do for you?`);
+    });
+  }function handleOptions(agent){
+    agent.add(`Here is what you can ask me:` + "\n"+
                 `1.    Let's have a trivia`+ "\n" + 
                 `2.    Weather of a city` + "\n" + 
                 `3.    News about something` + "\n" +
-                `4.    End this conversation`);
-    });
+                `4.    Play some music` + "\n" +
+                `5.    End this conversation` + "\n\n" +
+             	`What do you want to do?`);
   }
   // Run the proper function handler based on the matched Dialogflow intent name
   let intentMap = new Map();
   intentMap.set('Default Welcome Intent', handleWelcome);
+  intentMap.set('options', handleOptions);
   intentMap.set('choiceTrivia', handleTrivia);
   intentMap.set('choiceTrivia - answer', handleTriviaAnswer);
   intentMap.set('choiceWeather', handleWeather);
   intentMap.set('choiceNews', handleNews);
+  intentMap.set('choiceMusic', handleMusic);
   agent.handleRequest(intentMap);
 });

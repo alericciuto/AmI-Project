@@ -43,10 +43,10 @@ def detect():
             print("The server is going to stop sound stimolation!")
             driver.sound_off()
             print("## Sound stimolation stopped ##")
-             if logi_wheel.is_vibrating():
-                 print("Stopping vibration")
-                 logi_wheel.make_wheel_stop()
-                 print("## Vibration stopped         ##")
+            if logi_wheel.is_vibrating():
+                print("Stopping vibration")
+                logi_wheel.make_wheel_stop()
+                print("## Vibration stopped         ##")
         main_event.release()
 
 

@@ -7,7 +7,7 @@ void setup() {
 }
 
 void loop() {
-  delay(100);
+  delay(200);
   valTaken = analogRead(A0);
   //Il sensore il pressione non é per niente accurato in opposizione a quanto inizialmente considerato. 
   //Riesce solo a distinguere se é applicata pressione o meno.

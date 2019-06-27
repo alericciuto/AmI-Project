@@ -1,8 +1,8 @@
 from threading import Thread, Condition
-from detect_blinks import run
-from status import Status
-from detect_pressure import arduino_function
-from wheel_vibration import *
+from Face_Analysis.detect_blinks import run
+from Driver.status import Status
+from Pressure_Analysis.detect_pressure import arduino_function
+from Steering_Wheel.wheel_vibration import *
 
 
 def detect():

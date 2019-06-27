@@ -3,6 +3,9 @@ package com.example.kmapp;
 import android.app.Application;
 import android.speech.tts.TextToSpeech;
 
+import com.example.kmapp.DatabaseInteraction.DatabaseAccess;
+import com.example.kmapp.ServerCommunication.NetworkTask;
+
 
 public class MyApplication extends Application {
 

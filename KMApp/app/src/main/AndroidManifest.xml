@@ -20,16 +20,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".Player"></activity>
-        <activity android:name=".MusicPostConversation" />
-        <activity android:name=".ConversationActivity" />
+        <activity android:name=".Conversation.MusicPlayer.Player"></activity>
+        <activity android:name=".Conversation.SpeechError.MusicPostConversation" />
+        <activity android:name=".Conversation.ConversationActivity" />
 
-        <service android:name=".GpsTracker" />
+        <service android:name=".Conversation.NearbyPlaces.GpsTracker" />
 
-        <activity android:name=".Account" />
-        <activity android:name=".Delete_Account" />
-        <activity android:name=".New_Account" />
-        <activity android:name=".InitialConfiguration" />
+        <activity android:name=".UserProfile.Account" />
+        <activity android:name=".UserProfile.Delete_Account" />
+        <activity android:name=".UserProfile.New_Account" />
+        <activity android:name=".UserProfile.InitialConfiguration" />
         <activity
             android:name=".MainActivity"
             android:label="KMApp"

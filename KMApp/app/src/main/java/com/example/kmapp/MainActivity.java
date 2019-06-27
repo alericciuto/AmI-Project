@@ -13,6 +13,13 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.example.kmapp.DatabaseInteraction.DatabaseAccess;
+import com.example.kmapp.UserProfile.Account;
+import com.example.kmapp.UserProfile.Delete_Account;
+import com.example.kmapp.UserProfile.New_Account;
+import com.example.kmapp.UserProfile.User;
+
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
